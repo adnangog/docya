@@ -1,11 +1,8 @@
 const mongoose = require('mongoose');
-const path = require('path');
 const Department = require('../models/departments');
+const checkAuth = require("../middleware/checkAuth");
 
-module.exports.departmentAdd = (req, res, next) => {
-    console.log(
-        req.body
-    );
+module.exports.departmentAdd = [checkAuth,(req, res, next) => {
     const department = new Department({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
@@ -26,7 +23,7 @@ module.exports.departmentAdd = (req, res, next) => {
     });
 
     
-};
+}];
 
 module.exports.departmentUpdate = (req, res, next) => {
     const departmentId = req.params.departmentId;
