@@ -1,10 +1,20 @@
 const mongoose = require('mongoose');
 const path = require('path');
 const Department = require('../models/departments');
+const multer = require('multer');
+const storage = multer.diskStorage({
+    destination: function(req, file, cb){
+        cb(null, './uploads/');
+    },
+    filename: function(req, file, cb){
+        cb(null, new Date().toISOString() + file.originalname);
+    }
+});
+const upload = multer({ storage: storage });
 
-module.exports.departmentAdd = (req, res, next) => {
+module.exports.departmentAdd = [upload.single('departmentImage'),(req, res, next) => {
     console.log(
-        req.body
+        req.file
     );
     const department = new Department({
         _id: new mongoose.Types.ObjectId(),
@@ -26,7 +36,7 @@ module.exports.departmentAdd = (req, res, next) => {
     });
 
     
-};
+}];
 
 module.exports.departmentUpdate = (req, res, next) => {
     const departmentId = req.params.departmentId;

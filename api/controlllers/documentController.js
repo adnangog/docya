@@ -7,7 +7,7 @@ module.exports.documentAdd = (req, res, next) => {
     const document = new Document({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
-        typeId: req.body.typeId,
+        type: req.body.typeId,
         rDate: req.body.rDate,
         publishFirstDate: req.body.publishFirstDate,
         publishEndDate: req.body.publishEndDate,
@@ -63,6 +63,7 @@ module.exports.documentUpdate = (req, res, next) => {
 module.exports.documentGet = (req, res, next) => {
     const documentId = req.params.documentId;
     Document.findById(documentId)
+        .populate('type', 'name')
         .exec()
         .then(doc => {
             if (doc) {
@@ -129,7 +130,7 @@ module.exports.documentTypeAdd = (req, res, next) => {
         console.log(err);
     });
 
-    
+
 };
 
 module.exports.documentTypeUpdate = (req, res, next) => {
