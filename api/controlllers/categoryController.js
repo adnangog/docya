@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
-const path = require('path');
 const Category = require('../models/categories');
+
 
 module.exports.categoryAdd = (req, res, next) => {
     const category = new Category({

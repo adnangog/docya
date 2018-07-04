@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const path = require('path');
 const Department = require('../models/departments');
 const multer = require('multer');
 const storage = multer.diskStorage({
@@ -16,6 +15,9 @@ module.exports.departmentAdd = [upload.single('departmentImage'),(req, res, next
     console.log(
         req.file
     );
+const checkAuth = require("../middleware/checkAuth");
+
+module.exports.departmentAdd = [checkAuth,(req, res, next) => {
     const department = new Department({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
