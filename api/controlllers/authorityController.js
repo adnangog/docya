@@ -3,13 +3,9 @@ const path = require('path');
 const Authority = require('../models/authorities');
 
 module.exports.authorityAdd = (req, res, next) => {
-    console.log(
-        req.body
-    );
     const authority = new Authority({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
-        aId: req.body.aId,
         rDate: req.body.rDate
     });
 

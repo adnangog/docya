@@ -6,11 +6,9 @@ const transactionSchema = new schema(
     {
         _id: mongoose.Schema.Types.ObjectId,
         rDate: Date,
-        userId: { type: Number, required: true },
-        tpId: { type: String, required: true },
-        tpName: { type: String, required: true },
-        dcmId: { type: String, required: true },
-        dcmName: { type: String, required: true },
+        user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+        type: { type: mongoose.Schema.Types.ObjectId, ref: 'TransactionType', required: true },
+        document: { type: mongoose.Schema.Types.ObjectId, ref: 'Document', required: true },
     }
 
 );

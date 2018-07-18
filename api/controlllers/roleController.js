@@ -6,7 +6,6 @@ module.exports.roleAdd = (req, res, next) => {
     const role = new Role({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
-        rId: req.body.rId,
         authorities: req.body.authorities,
         rDate: req.body.rDate
     });

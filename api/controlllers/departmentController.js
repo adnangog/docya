@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
-const Department = require('../models/departments');
 const multer = require('multer');
+
+const Department = require('../models/departments');
+const checkAuth = require("../middleware/checkAuth");
+
 const storage = multer.diskStorage({
     destination: function(req, file, cb){
         cb(null, './uploads/');
@@ -9,15 +12,12 @@ const storage = multer.diskStorage({
         cb(null, new Date().toISOString() + file.originalname);
     }
 });
+
 const upload = multer({ storage: storage });
 
-module.exports.departmentAdd = [upload.single('departmentImage'),(req, res, next) => {
-    console.log(
-        req.file
-    );
-const checkAuth = require("../middleware/checkAuth");
 
-module.exports.departmentAdd = [checkAuth,(req, res, next) => {
+
+module.exports.departmentAdd = [checkAuth,upload.single('departmentImage'), (req, res, next) => {
     const department = new Department({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,

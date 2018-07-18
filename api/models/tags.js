@@ -6,7 +6,6 @@ const tagSchema = new schema(
     {
         _id: mongoose.Schema.Types.ObjectId,
         name: { type: String, required: true },
-        tagId: { type: Number, required: true, unique: true },
         rDate: Date
     }
 
