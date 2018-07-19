@@ -1,22 +1,50 @@
 const http = require('http');
-const apiUrl = 'localhost';
 
-const options = {
-    host: apiUrl,
-    port: 8000,
-    path: '/role',
-    method: 'GET'
+module.exports.api = (path, method, params, cb) => {
+
+    const apiUrl = 'localhost';
+    var data = JSON.stringify(params);
+
+    const options = {
+        host: apiUrl,
+        port: 8000,
+        path: path,
+        method: method,
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    };
+
+    var post_req = http.request(options, function (res) {
+        res.setEncoding('utf8');
+        let body = '';
+
+        res.on('data', function (chunk) {
+            body += chunk;
+        });
+
+        res.on('end', function () {
+            let result = JSON.parse(body);
+            cb(result);
+        });
+    });
+
+    if(method=='POST')
+        post_req.write(data);
+
+    post_req.end();
 };
 
-http.request(options, function (res) {
-    let body = '';
+const api = require('./api');
 
-    res.on('data', function (chunk) {
-        body += chunk;
-    });
+api.api("/role", "POST", {
+    "name": "STAJYER",
+    "authorities": [],
+    "rDate": "2018-07-07"
+}, function (result) {
+    console.log(result);
+});
 
-    res.on('end', function(){
-        let result = JSON.parse(body);
-        console.log(result);
-    });
-}).end();
+api.api("/role", "GET", null, function (result) {
+    console.log(result);
+});
