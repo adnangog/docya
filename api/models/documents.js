@@ -11,12 +11,12 @@ const documentSchema = new schema(
         publishFirstDate: Date,
         publishEndDate: Date,
         checkOut: Boolean,
-        departmentId: Number,
-        sDescription: String,
-        lDescription: String,
+        department: { type: mongoose.Schema.Types.ObjectId, ref: 'Department' },
+        user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+        description: String,
         tags: [],
-        version: {},
-        versions: []
+        version: { type: mongoose.Schema.Types.ObjectId, ref: 'Version' },
+        status: { type: Number, required: true }
     }
 
 );

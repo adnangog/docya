@@ -7,24 +7,16 @@ module.exports.documentAdd = (req, res, next) => {
     const document = new Document({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
-        type: req.body.typeId,
+        type: req.body.type,
         rDate: req.body.rDate,
         publishFirstDate: req.body.publishFirstDate,
         publishEndDate: req.body.publishEndDate,
-        departmentId: req.body.departmentId,
-        sDescription: req.body.sDescription,
-        lDescription: req.body.lDescription,
+        department: req.body.department,
+        user: req.body.user,
+        description: req.body.description,
         tags: req.body.tags,
-        version: {
-            versioncode: "1.0.0",
-            date: req.body.rDate,
-            file: req.body.file,
-            userId: req.body.userId,
-            publishFirstDate: req.body.publishFirstDate,
-            publishEndDate: req.body.publishEndDate,
-            fileType: req.body.fileType
-        },
-        versions: []
+        status: req.body.status,
+        version: req.body.version
     });
 
     document.save().then(result => {
