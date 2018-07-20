@@ -60,13 +60,7 @@ module.exports.userAdd = (req, res, next) => {
 
 module.exports.userUpdate = (req, res, next) => {
     const userId = req.params.userId;
-    console.log(userId);
-    const updateItems = {};
-    for (const item of req.body) {
-        updateItems[item.propname.toString()] = item.value;
-    }
-    console.log(updateItems);
-    User.update({ _id: userId }, { $set: updateItems })
+    User.update({ _id: userId }, { $set: req.body })
         .exec()
         .then(doc => {
             res.status(200).json(doc);

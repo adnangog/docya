@@ -25,11 +25,7 @@ module.exports.authorityAdd = (req, res, next) => {
 
 module.exports.authorityUpdate = (req, res, next) => {
     const authorityId = req.params.authorityId;
-    const updateItems = {};
-    for (const item of req.body) {
-        updateItems[item.propname.toString()] = item.value;
-    }
-    Authority.update({ _id: authorityId }, { $set: updateItems })
+    Authority.update({ _id: authorityId }, { $set: req.body })
         .exec()
         .then(doc => {
             res.status(200).json(doc);

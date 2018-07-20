@@ -29,11 +29,7 @@ module.exports.categoryAdd = (req, res, next) => {
 
 module.exports.categoryUpdate = (req, res, next) => {
     const categoryId = req.params.categoryId;
-    const updateItems = {};
-    for (const item of req.body) {
-        updateItems[item.propname.toString()] = item.value;
-    }
-    Category.update({ _id: categoryId }, { $set: updateItems })
+    Category.update({ _id: categoryId }, { $set: req.body })
         .exec()
         .then(doc => {
             res.status(200).json(doc);

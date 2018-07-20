@@ -31,11 +31,7 @@ module.exports.transactionAdd = (req, res, next) => {
 
 module.exports.transactionUpdate = (req, res, next) => {
     const transactionId = req.params.transactionId;
-    const updateItems = {};
-    for (const item of req.body) {
-        updateItems[item.propName] = item.value;
-    }
-    Transaction.update({ _id: transactionId }, { $set: updateItems })
+    Transaction.update({ _id: transactionId }, { $set: req.body })
         .exec()
         .then(doc => {
             res.status(200).json(doc);

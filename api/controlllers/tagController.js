@@ -28,11 +28,7 @@ module.exports.tagAdd = (req, res, next) => {
 
 module.exports.tagUpdate = (req, res, next) => {
     const tagId = req.params.tagId;
-    const updateItems = {};
-    for (const item of req.body) {
-        updateItems[item.propname.toString()] = item.value;
-    }
-    Tag.update({ _id: tagId }, { $set: updateItems })
+    Tag.update({ _id: tagId }, { $set: req.body })
         .exec()
         .then(doc => {
             res.status(200).json(doc);

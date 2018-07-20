@@ -35,11 +35,7 @@ module.exports.documentAdd = (req, res, next) => {
 
 module.exports.documentUpdate = (req, res, next) => {
     const documentId = req.params.documentId;
-    const updateItems = {};
-    for (const item of req.body) {
-        updateItems[item.propName] = item.value;
-    }
-    Document.update({ _id: documentId }, { $set: updateItems })
+    Document.update({ _id: documentId }, { $set: req.body })
         .exec()
         .then(doc => {
             res.status(200).json(doc);
@@ -127,11 +123,7 @@ module.exports.documentTypeAdd = (req, res, next) => {
 
 module.exports.documentTypeUpdate = (req, res, next) => {
     const typeId = req.params.typeId;
-    const updateItems = {};
-    for (const item of req.body) {
-        updateItems[item.propName] = item.value;
-    }
-    DocumentType.update({ _id: typeId }, { $set: updateItems })
+    DocumentType.update({ _id: typeId }, { $set: req.body })
         .exec()
         .then(doc => {
             res.status(200).json(doc);

@@ -26,13 +26,10 @@ module.exports.roleAdd = (req, res, next) => {
 };
 
 module.exports.roleUpdate = (req, res, next) => {
-    const roleId = req.params.roleId;
-    const updateItems = {};
     console.log(req.body);
-    for (const item of req.body) {
-        updateItems[item.propname.toString()] = item.value;
-    }
-    Role.update({ _id: roleId }, { $set: updateItems })
+    const roleId = req.params.roleId;
+
+    Role.update({ _id: roleId }, { $set: req.body })
         .exec()
         .then(doc => {
             res.status(200).json(doc);

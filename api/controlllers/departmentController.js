@@ -42,11 +42,7 @@ module.exports.departmentAdd = [checkAuth,upload.single('departmentImage'), (req
 
 module.exports.departmentUpdate = (req, res, next) => {
     const departmentId = req.params.departmentId;
-    const updateItems = {};
-    for (const item of req.body) {
-        updateItems[item.propname.toString()] = item.value;
-    }
-    Department.update({ _id: departmentId }, { $set: updateItems })
+    Department.update({ _id: departmentId }, { $set: req.body })
         .exec()
         .then(doc => {
             res.status(200).json(doc);
