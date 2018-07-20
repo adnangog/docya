@@ -26,7 +26,6 @@ module.exports.roleAdd = (req, res, next) => {
 };
 
 module.exports.roleUpdate = (req, res, next) => {
-    console.log(req.body);
     const roleId = req.params.roleId;
 
     Role.update({ _id: roleId }, { $set: req.body })
