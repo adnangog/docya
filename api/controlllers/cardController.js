@@ -1,23 +1,21 @@
 const mongoose = require('mongoose');
-const Category = require('../models/categories');
+const path = require('path');
+const Card = require('../models/cards');
+const checkAuth = require("../middleware/checkAuth");
 
-
-module.exports.categoryAdd = (req, res, next) => {
-    const category = new Category({
+module.exports.cardAdd = [checkAuth,(req, res, next) => {
+    const card = new Card({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
-        rDate: req.body.rDate,
-        description: req.body.description,
-        parent: req.body.parent,
-        childs: req.body.childs,
-        sortIndex: req.body.sortIndex
+        authSet: req.body.authSet,
+        rDate: req.body.rDate
     });
 
-    category.save().then(result => {
+    card.save().then(result => {
         res.status(201).json({
-            message: "Kategori kaydedildi.",
+            message: "Kart kaydedildi.",
             messageType: 1,
-            category: category
+            card: card
         });
     }).catch(err => {
         res.status(500).json({
@@ -25,11 +23,13 @@ module.exports.categoryAdd = (req, res, next) => {
         });
         console.log(err);
     });
-};
 
-module.exports.categoryUpdate = (req, res, next) => {
-    const categoryId = req.params.categoryId;
-    Category.update({ _id: categoryId }, { $set: req.body })
+}];
+
+module.exports.cardUpdate = [checkAuth,(req, res, next) => {
+    const cardId = req.params.cardId;
+
+    Card.update({ _id: cardId }, { $set: req.body })
         .exec()
         .then(doc => {
             res.status(200).json(doc);
@@ -40,11 +40,11 @@ module.exports.categoryUpdate = (req, res, next) => {
                 error: err
             });
         });
-}
+}]
 
-module.exports.categoryGet = (req, res, next) => {
-    const categoryId = req.params.categoryId;
-    Category.findById(categoryId)
+module.exports.cardGet = [checkAuth,(req, res, next) => {
+    const cardId = req.params.cardId;
+    Card.findById(cardId)
         .exec()
         .then(doc => {
             if (doc) {
@@ -59,11 +59,11 @@ module.exports.categoryGet = (req, res, next) => {
                 error: err
             });
         });
-}
+}]
 
-module.exports.categoryList = (req, res, next) => {
+module.exports.cardList = [checkAuth,(req, res, next) => {
 
-    Category.find()
+    Card.find()
         .exec()
         .then(docs => {
             res.status(200).json(docs);
@@ -73,11 +73,11 @@ module.exports.categoryList = (req, res, next) => {
                 error: err
             });
         });
-}
+}]
 
-module.exports.categoryDelete = (req, res, next) => {
-    const categoryId = req.params.categoryId;
-    Category.remove({ _id: categoryId })
+module.exports.cardDelete = [checkAuth,(req, res, next) => {
+    const cardId = req.params.cardId;
+    Card.remove({ _id: cardId })
         .exec()
         .then(result => {
             res.status(200).json(result);
@@ -89,4 +89,4 @@ module.exports.categoryDelete = (req, res, next) => {
             });
         });
 
-}
+}]

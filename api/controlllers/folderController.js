@@ -1,21 +1,26 @@
 const mongoose = require('mongoose');
-const path = require('path');
-const Tag = require('../models/tags');
+const Folder = require('../models/folders');
 const checkAuth = require("../middleware/checkAuth");
 
-module.exports.tagAdd = [checkAuth,(req, res, next) => {
-    const tag = new Tag({
+
+module.exports.folderAdd = [checkAuth,(req, res, next) => {
+    const folder = new Folder({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
-        tagId: req.body.tagId,
-        rDate: req.body.rDate
+        rDate: req.body.rDate,
+        description: req.body.description,
+        parent: req.body.parent,
+        card: req.body.card,
+        childs: req.body.childs,
+        sortIndex: req.body.sortIndex,
+        status: req.body.status
     });
 
-    tag.save().then(result => {
+    folder.save().then(result => {
         res.status(201).json({
-            message: "Etiket kaydedildi.",
+            message: "Klasör kaydedildi.",
             messageType: 1,
-            tag: tag
+            folder: folder
         });
     }).catch(err => {
         res.status(500).json({
@@ -23,13 +28,11 @@ module.exports.tagAdd = [checkAuth,(req, res, next) => {
         });
         console.log(err);
     });
-
-    
 }];
 
-module.exports.tagUpdate = [checkAuth,(req, res, next) => {
-    const tagId = req.params.tagId;
-    Tag.update({ _id: tagId }, { $set: req.body })
+module.exports.folderUpdate = [checkAuth,(req, res, next) => {
+    const folderId = req.params.folderId;
+    Folder.update({ _id: folderId }, { $set: req.body })
         .exec()
         .then(doc => {
             res.status(200).json(doc);
@@ -42,9 +45,9 @@ module.exports.tagUpdate = [checkAuth,(req, res, next) => {
         });
 }]
 
-module.exports.tagGet = [checkAuth,(req, res, next) => {
-    const tagId = req.params.tagId;
-    Tag.findById(tagId)
+module.exports.folderGet = [checkAuth,(req, res, next) => {
+    const folderId = req.params.folderId;
+    Folder.findById(folderId)
         .exec()
         .then(doc => {
             if (doc) {
@@ -61,9 +64,9 @@ module.exports.tagGet = [checkAuth,(req, res, next) => {
         });
 }]
 
-module.exports.tagList = [checkAuth,(req, res, next) => {
+module.exports.folderList = [checkAuth,(req, res, next) => {
 
-    Tag.find()
+    Folder.find()
         .exec()
         .then(docs => {
             res.status(200).json(docs);
@@ -75,9 +78,9 @@ module.exports.tagList = [checkAuth,(req, res, next) => {
         });
 }]
 
-module.exports.tagDelete = [checkAuth,(req, res, next) => {
-    const tagId = req.params.tagId;
-    Tag.remove({ _id: tagId })
+module.exports.folderDelete = [checkAuth,(req, res, next) => {
+    const folderId = req.params.folderId;
+    Folder.remove({ _id: folderId })
         .exec()
         .then(result => {
             res.status(200).json(result);

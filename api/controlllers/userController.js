@@ -2,8 +2,9 @@ const mongoose = require("mongoose");
 const User = require("../models/users");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const checkAuth = require("../middleware/checkAuth");
 
-module.exports.userAdd = (req, res, next) => {
+module.exports.userAdd = [checkAuth,(req, res, next) => {
     User.find({ email: req.body.email })
         .exec()
         .then((user) => {
@@ -56,9 +57,9 @@ module.exports.userAdd = (req, res, next) => {
             }
         })
         .catch();
-};
+}];
 
-module.exports.userUpdate = (req, res, next) => {
+module.exports.userUpdate = [checkAuth,(req, res, next) => {
     const userId = req.params.userId;
     User.update({ _id: userId }, { $set: req.body })
         .exec()
@@ -71,9 +72,9 @@ module.exports.userUpdate = (req, res, next) => {
                 error: err
             });
         });
-};
+}];
 
-module.exports.userGet = (req, res, next) => {
+module.exports.userGet = [checkAuth,(req, res, next) => {
     const userId = req.params.userId;
     User.findById(userId)
         .exec()
@@ -95,10 +96,16 @@ module.exports.userGet = (req, res, next) => {
                 error: err
             });
         });
-};
+}];
 
-module.exports.userList = (req, res, next) => {
+module.exports.userList = [checkAuth,(req, res, next) => {
+    let pageOptions = {
+        page: req.body.page || 0,
+        limit: req.body.limit || parseInt(process.env.pageLimit)
+    }
     User.find()
+    .skip(pageOptions.page*pageOptions.limit)
+    .limit(pageOptions.limit)
         .exec()
         .then(docs => {
             res.status(200).json(docs);
@@ -108,9 +115,9 @@ module.exports.userList = (req, res, next) => {
                 error: err
             });
         });
-};
+}];
 
-module.exports.userDelete = (req, res, next) => {
+module.exports.userDelete = [checkAuth,(req, res, next) => {
     const userId = req.params.userId;
     User.remove({ _id: userId })
         .exec()
@@ -123,9 +130,10 @@ module.exports.userDelete = (req, res, next) => {
                 error: err
             });
         });
-};
+}];
 
 module.exports.userLogin = (req, res, next) => {
+    console.log(req.body);
     User.find({ email: req.body.email })
         .exec()
         .then(user => {

@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 const path = require('path');
 const Authority = require('../models/authorities');
+const checkAuth = require("../middleware/checkAuth");
 
-module.exports.authorityAdd = (req, res, next) => {
+module.exports.authorityAdd = [checkAuth,(req, res, next) => {
     const authority = new Authority({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
@@ -21,9 +22,9 @@ module.exports.authorityAdd = (req, res, next) => {
         });
         console.log(err);
     });
-};
+}];
 
-module.exports.authorityUpdate = (req, res, next) => {
+module.exports.authorityUpdate = [checkAuth,(req, res, next) => {
     const authorityId = req.params.authorityId;
     Authority.update({ _id: authorityId }, { $set: req.body })
         .exec()
@@ -36,9 +37,9 @@ module.exports.authorityUpdate = (req, res, next) => {
                 error: err
             });
         });
-}
+}]
 
-module.exports.authorityGet = (req, res, next) => {
+module.exports.authorityGet = [checkAuth,(req, res, next) => {
     const authorityId = req.params.authorityId;
     Authority.findById(authorityId)
         .exec()
@@ -55,9 +56,9 @@ module.exports.authorityGet = (req, res, next) => {
                 error: err
             });
         });
-}
+}]
 
-module.exports.authorityList = (req, res, next) => {
+module.exports.authorityList = [checkAuth,(req, res, next) => {
 
     Authority.find()
         .exec()
@@ -69,9 +70,9 @@ module.exports.authorityList = (req, res, next) => {
                 error: err
             });
         });
-}
+}]
 
-module.exports.authorityDelete = (req, res, next) => {
+module.exports.authorityDelete = [checkAuth,(req, res, next) => {
     const authorityId = req.params.authorityId;
     Authority.remove({ _id: authorityId })
         .exec()
@@ -85,4 +86,4 @@ module.exports.authorityDelete = (req, res, next) => {
             });
         });
 
-}
+}]

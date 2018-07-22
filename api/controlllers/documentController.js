@@ -2,8 +2,9 @@ const mongoose = require('mongoose');
 const path = require('path');
 const Document = require('../models/documents');
 const DocumentType = require('../models/documentTypes');
+const checkAuth = require("../middleware/checkAuth");
 
-module.exports.documentAdd = (req, res, next) => {
+module.exports.documentAdd = [checkAuth,(req, res, next) => {
     const document = new Document({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
@@ -31,9 +32,9 @@ module.exports.documentAdd = (req, res, next) => {
         });
         console.log(err);
     });
-};
+}];
 
-module.exports.documentUpdate = (req, res, next) => {
+module.exports.documentUpdate = [checkAuth,(req, res, next) => {
     const documentId = req.params.documentId;
     Document.update({ _id: documentId }, { $set: req.body })
         .exec()
@@ -46,9 +47,9 @@ module.exports.documentUpdate = (req, res, next) => {
                 error: err
             });
         });
-}
+}]
 
-module.exports.documentGet = (req, res, next) => {
+module.exports.documentGet = [checkAuth,(req, res, next) => {
     const documentId = req.params.documentId;
     Document.findById(documentId)
         .populate('type', 'name')
@@ -66,9 +67,9 @@ module.exports.documentGet = (req, res, next) => {
                 error: err
             });
         });
-}
+}]
 
-module.exports.documentList = (req, res, next) => {
+module.exports.documentList = [checkAuth,(req, res, next) => {
 
     Document.find()
         .exec()
@@ -80,9 +81,9 @@ module.exports.documentList = (req, res, next) => {
                 error: err
             });
         });
-}
+}]
 
-module.exports.documentDelete = (req, res, next) => {
+module.exports.documentDelete = [checkAuth,(req, res, next) => {
     const documentId = req.params.documentId;
     Document.remove({ _id: documentId })
         .exec()
@@ -96,9 +97,9 @@ module.exports.documentDelete = (req, res, next) => {
             });
         });
 
-}
+}]
 
-module.exports.documentTypeAdd = (req, res, next) => {
+module.exports.documentTypeAdd = [checkAuth,(req, res, next) => {
     const documentType = new DocumentType({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
@@ -119,9 +120,9 @@ module.exports.documentTypeAdd = (req, res, next) => {
     });
 
 
-};
+}];
 
-module.exports.documentTypeUpdate = (req, res, next) => {
+module.exports.documentTypeUpdate = [checkAuth,(req, res, next) => {
     const typeId = req.params.typeId;
     DocumentType.update({ _id: typeId }, { $set: req.body })
         .exec()
@@ -134,9 +135,9 @@ module.exports.documentTypeUpdate = (req, res, next) => {
                 error: err
             });
         });
-}
+}]
 
-module.exports.documentTypeGet = (req, res, next) => {
+module.exports.documentTypeGet = [checkAuth,(req, res, next) => {
     const typeId = req.params.typeId;
     DocumentType.findById(typeId)
         .exec()
@@ -153,9 +154,9 @@ module.exports.documentTypeGet = (req, res, next) => {
                 error: err
             });
         });
-}
+}]
 
-module.exports.documentTypeList = (req, res, next) => {
+module.exports.documentTypeList = [checkAuth,(req, res, next) => {
 
     DocumentType.find()
         .exec()
@@ -167,9 +168,9 @@ module.exports.documentTypeList = (req, res, next) => {
                 error: err
             });
         });
-}
+}]
 
-module.exports.documentTypeDelete = (req, res, next) => {
+module.exports.documentTypeDelete = [checkAuth,(req, res, next) => {
     const typeId = req.params.typeId;
     DocumentType.remove({ _id: typeId })
         .exec()
@@ -183,4 +184,4 @@ module.exports.documentTypeDelete = (req, res, next) => {
             });
         });
 
-}
+}]

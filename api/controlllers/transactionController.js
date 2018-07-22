@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 const path = require('path');
 const Transaction = require('../models/transactions');
+const checkAuth = require("../middleware/checkAuth");
 
-module.exports.transactionAdd = (req, res, next) => {
+module.exports.transactionAdd = [checkAuth,(req, res, next) => {
     const transaction = new Transaction({
         _id: new mongoose.Types.ObjectId(),
         userId: req.body.userId,
@@ -27,9 +28,9 @@ module.exports.transactionAdd = (req, res, next) => {
     });
 
     
-};
+}];
 
-module.exports.transactionUpdate = (req, res, next) => {
+module.exports.transactionUpdate = [checkAuth,(req, res, next) => {
     const transactionId = req.params.transactionId;
     Transaction.update({ _id: transactionId }, { $set: req.body })
         .exec()
@@ -42,9 +43,9 @@ module.exports.transactionUpdate = (req, res, next) => {
                 error: err
             });
         });
-}
+}]
 
-module.exports.transactionGet = (req, res, next) => {
+module.exports.transactionGet = [checkAuth,(req, res, next) => {
     const transactionId = req.params.transactionId;
     Transaction.findById(transactionId)
         .exec()
@@ -61,9 +62,9 @@ module.exports.transactionGet = (req, res, next) => {
                 error: err
             });
         });
-}
+}]
 
-module.exports.transactionList = (req, res, next) => {
+module.exports.transactionList = [checkAuth,(req, res, next) => {
 
     Transaction.find()
         .exec()
@@ -75,9 +76,9 @@ module.exports.transactionList = (req, res, next) => {
                 error: err
             });
         });
-}
+}]
 
-module.exports.transactionDelete = (req, res, next) => {
+module.exports.transactionDelete = [checkAuth,(req, res, next) => {
     const transactionId = req.params.transactionId;
     Transaction.remove({ _id: transactionId })
         .exec()
@@ -91,4 +92,4 @@ module.exports.transactionDelete = (req, res, next) => {
             });
         });
 
-}
+}]

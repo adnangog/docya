@@ -2,9 +2,10 @@ const express = require('express');
 const path = require('path');
 const documentRoute = require('./api/routes/documentRoute');
 const userRoute = require('./api/routes/userRoute');
-const categoryRoute = require('./api/routes/categoryRoute');
+const folderRoute = require('./api/routes/folderRoute');
 const authorityRoute = require('./api/routes/authorityRoute');
 const roleRoute = require('./api/routes/roleRoute');
+const cardRoute = require('./api/routes/cardRoute');
 const departmentRoute = require('./api/routes/departmentRoute');
 const transactionRoute = require('./api/routes/transactionRoute');
 const tagRoute = require('./api/routes/tagRoute');
@@ -32,9 +33,10 @@ app.use((req, res, next) => {
 
 app.use('/document', documentRoute);
 app.use('/user', userRoute);
-app.use('/category', categoryRoute);
+app.use('/folder', folderRoute);
 app.use('/authority', authorityRoute);
 app.use('/role', roleRoute);
+app.use('/card', cardRoute);
 app.use('/department', departmentRoute);
 app.use('/transaction', transactionRoute);
 app.use('/tag', tagRoute);

@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 const path = require('path');
 const Role = require('../models/roles');
+const checkAuth = require("../middleware/checkAuth");
 
-module.exports.roleAdd = (req, res, next) => {
+module.exports.roleAdd = [checkAuth,(req, res, next) => {
     const role = new Role({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
@@ -23,9 +24,9 @@ module.exports.roleAdd = (req, res, next) => {
         console.log(err);
     });
 
-};
+}];
 
-module.exports.roleUpdate = (req, res, next) => {
+module.exports.roleUpdate = [checkAuth,(req, res, next) => {
     const roleId = req.params.roleId;
 
     Role.update({ _id: roleId }, { $set: req.body })
@@ -39,9 +40,9 @@ module.exports.roleUpdate = (req, res, next) => {
                 error: err
             });
         });
-}
+}]
 
-module.exports.roleGet = (req, res, next) => {
+module.exports.roleGet = [checkAuth,(req, res, next) => {
     const roleId = req.params.roleId;
     Role.findById(roleId)
         .exec()
@@ -58,9 +59,9 @@ module.exports.roleGet = (req, res, next) => {
                 error: err
             });
         });
-}
+}]
 
-module.exports.roleList = (req, res, next) => {
+module.exports.roleList = [checkAuth,(req, res, next) => {
 
     Role.find()
         .exec()
@@ -72,9 +73,9 @@ module.exports.roleList = (req, res, next) => {
                 error: err
             });
         });
-}
+}]
 
-module.exports.roleDelete = (req, res, next) => {
+module.exports.roleDelete = [checkAuth,(req, res, next) => {
     const roleId = req.params.roleId;
     Role.remove({ _id: roleId })
         .exec()
@@ -88,4 +89,4 @@ module.exports.roleDelete = (req, res, next) => {
             });
         });
 
-}
+}]

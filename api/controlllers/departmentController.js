@@ -40,7 +40,7 @@ module.exports.departmentAdd = [checkAuth,upload.single('departmentImage'), (req
     
 }];
 
-module.exports.departmentUpdate = (req, res, next) => {
+module.exports.departmentUpdate = [checkAuth,(req, res, next) => {
     const departmentId = req.params.departmentId;
     Department.update({ _id: departmentId }, { $set: req.body })
         .exec()
@@ -53,9 +53,9 @@ module.exports.departmentUpdate = (req, res, next) => {
                 error: err
             });
         });
-}
+}]
 
-module.exports.departmentGet = (req, res, next) => {
+module.exports.departmentGet = [checkAuth,(req, res, next) => {
     const departmentId = req.params.departmentId;
     Department.findById(departmentId)
         .exec()
@@ -72,9 +72,9 @@ module.exports.departmentGet = (req, res, next) => {
                 error: err
             });
         });
-}
+}]
 
-module.exports.departmentList = (req, res, next) => {
+module.exports.departmentList = [checkAuth,(req, res, next) => {
 
     Department.find()
         .exec()
@@ -86,9 +86,9 @@ module.exports.departmentList = (req, res, next) => {
                 error: err
             });
         });
-}
+}]
 
-module.exports.departmentDelete = (req, res, next) => {
+module.exports.departmentDelete = [checkAuth,(req, res, next) => {
     const departmentId = req.params.departmentId;
     Department.remove({ _id: departmentId })
         .exec()
@@ -102,4 +102,4 @@ module.exports.departmentDelete = (req, res, next) => {
             });
         });
 
-}
+}]
