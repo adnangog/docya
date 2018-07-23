@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const checkAuth = require("../middleware/checkAuth");
 
-module.exports.userAdd = [checkAuth,(req, res, next) => {
+module.exports.userAdd = [checkAuth, (req, res, next) => {
     User.find({ email: req.body.email })
         .exec()
         .then((user) => {
@@ -59,7 +59,7 @@ module.exports.userAdd = [checkAuth,(req, res, next) => {
         .catch();
 }];
 
-module.exports.userUpdate = [checkAuth,(req, res, next) => {
+module.exports.userUpdate = [checkAuth, (req, res, next) => {
     const userId = req.params.userId;
     User.update({ _id: userId }, { $set: req.body })
         .exec()
@@ -74,7 +74,7 @@ module.exports.userUpdate = [checkAuth,(req, res, next) => {
         });
 }];
 
-module.exports.userGet = [checkAuth,(req, res, next) => {
+module.exports.userGet = [checkAuth, (req, res, next) => {
     const userId = req.params.userId;
     User.findById(userId)
         .exec()
@@ -98,26 +98,35 @@ module.exports.userGet = [checkAuth,(req, res, next) => {
         });
 }];
 
-module.exports.userList = [checkAuth,(req, res, next) => {
+module.exports.userList = [checkAuth, (req, res, next) => {
+    console.log(req.body);
     let pageOptions = {
         page: req.body.page || 0,
-        limit: req.body.limit || parseInt(process.env.pageLimit)
+        limit: req.body.limit || 2
     }
-    User.find()
-    .skip(pageOptions.page*pageOptions.limit)
-    .limit(pageOptions.limit)
-        .exec()
-        .then(docs => {
-            res.status(200).json(docs);
-        })
-        .catch(err => {
-            res.status(500).json({
-                error: err
-            });
-        });
+    User.aggregate([
+     { $match: {} },
+      {
+        $facet: {
+          data: [
+            //   { $sort: sort },
+            { $skip: pageOptions.page },
+            { $limit: pageOptions.limit }
+          ],
+          info: [{ $group: { _id: null, count: { $sum: 1 } } }]
+        }
+      }
+    ])
+      .exec()
+      .then(docs => {
+        res.status(200).json(docs[0]);
+      })
+      .catch(err => {
+        res.status(500).json({ error: err });
+      });
 }];
 
-module.exports.userDelete = [checkAuth,(req, res, next) => {
+module.exports.userDelete = [checkAuth, (req, res, next) => {
     const userId = req.params.userId;
     User.remove({ _id: userId })
         .exec()
@@ -166,7 +175,7 @@ module.exports.userLogin = (req, res, next) => {
                     );
                     return res.status(200)
                         .json({
-                            token:token,
+                            token: token,
                             message: "Login başarılı",
                             messageType: 1
                         });
