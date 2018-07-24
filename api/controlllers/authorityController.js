@@ -2,8 +2,9 @@ const mongoose = require('mongoose');
 const path = require('path');
 const Authority = require('../models/authorities');
 const checkAuth = require("../middleware/checkAuth");
+const moment = require("moment");
 
-module.exports.authorityAdd = [checkAuth,(req, res, next) => {
+module.exports.authorityAdd = [checkAuth, (req, res, next) => {
     const authority = new Authority({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
@@ -24,7 +25,7 @@ module.exports.authorityAdd = [checkAuth,(req, res, next) => {
     });
 }];
 
-module.exports.authorityUpdate = [checkAuth,(req, res, next) => {
+module.exports.authorityUpdate = [checkAuth, (req, res, next) => {
     const authorityId = req.params.authorityId;
     Authority.update({ _id: authorityId }, { $set: req.body })
         .exec()
@@ -39,7 +40,7 @@ module.exports.authorityUpdate = [checkAuth,(req, res, next) => {
         });
 }]
 
-module.exports.authorityGet = [checkAuth,(req, res, next) => {
+module.exports.authorityGet = [checkAuth, (req, res, next) => {
     const authorityId = req.params.authorityId;
     Authority.findById(authorityId)
         .exec()
@@ -58,12 +59,41 @@ module.exports.authorityGet = [checkAuth,(req, res, next) => {
         });
 }]
 
-module.exports.authorityList = [checkAuth,(req, res, next) => {
-
-    Authority.find()
-        .exec()
+module.exports.authorityList = [checkAuth, (req, res, next) => {
+    let pageOptions = {
+        page: req.body.page || 0,
+        limit: req.body.limit || 2
+    }
+    Authority.aggregate([
+        { $match: {} },
+        {
+            $facet: {
+                data: [
+                    //   { $sort: sort },
+                    { $skip: pageOptions.page },
+                    { $limit: pageOptions.limit }
+                ],
+                info: [{ $group: { _id: null, count: { $sum: 1 } } }]
+            }
+        }
+    ]).exec()
         .then(docs => {
-            res.status(200).json(docs);
+            let data = {
+                "header": [
+                    [
+                        "Id",
+                        "Yetki",
+                        "Kayıt Tarihi"
+                    ]
+                ],
+                "data": docs[0].data.map((x) => [
+                    x._id,
+                    x.name,
+                    moment(x.rDate).format("YYYY-MM-DD HH:mm:ss")
+                ]),
+                "count":docs[0].info[0].count
+            };
+            res.status(200).json(data);
         })
         .catch(err => {
             res.status(500).json({
@@ -72,7 +102,7 @@ module.exports.authorityList = [checkAuth,(req, res, next) => {
         });
 }]
 
-module.exports.authorityDelete = [checkAuth,(req, res, next) => {
+module.exports.authorityDelete = [checkAuth, (req, res, next) => {
     const authorityId = req.params.authorityId;
     Authority.remove({ _id: authorityId })
         .exec()

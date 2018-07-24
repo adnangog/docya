@@ -100,7 +100,6 @@ module.exports.userGet = [checkAuth, (req, res, next) => {
 }];
 
 module.exports.userList = [checkAuth, (req, res, next) => {
-    console.log(req.body);
     let pageOptions = {
         page: req.body.page || 0,
         limit: req.body.limit || 2
