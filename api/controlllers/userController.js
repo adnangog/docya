@@ -3,6 +3,7 @@ const User = require("../models/users");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const checkAuth = require("../middleware/checkAuth");
+const moment = require("moment");
 
 module.exports.userAdd = [checkAuth, (req, res, next) => {
     User.find({ email: req.body.email })
@@ -105,25 +106,47 @@ module.exports.userList = [checkAuth, (req, res, next) => {
         limit: req.body.limit || 2
     }
     User.aggregate([
-     { $match: {} },
-      {
-        $facet: {
-          data: [
-            //   { $sort: sort },
-            { $skip: pageOptions.page },
-            { $limit: pageOptions.limit }
-          ],
-          info: [{ $group: { _id: null, count: { $sum: 1 } } }]
+        { $match: {} },
+        {
+            $facet: {
+                data: [
+                    //   { $sort: sort },
+                    { $skip: pageOptions.page },
+                    { $limit: pageOptions.limit }
+                ],
+                info: [{ $group: { _id: null, count: { $sum: 1 } } }]
+            }
         }
-      }
     ])
-      .exec()
-      .then(docs => {
-        res.status(200).json(docs[0]);
-      })
-      .catch(err => {
-        res.status(500).json({ error: err });
-      });
+        .exec()
+        .then(docs => {
+            let data = {
+                "header": [
+                    [
+                        "Id",
+                        "Ad",
+                        "Soyad",
+                        "Email",
+                        "Durum",
+                        "Kayıt Tarihi"
+                    ]
+                ],
+                "data": docs[0].data.map((x) => [
+                    x._id,
+                    x.fName,
+                    x.lName,
+                    x.email,
+                    x.statu == 1 ? "Aktif" : "Pasif",
+                    moment(x.rDate).format("YYYY-MM-DD HH:mm:ss")
+                ]),
+                "count":docs[0].info[0].count
+            };
+            // res.status(200).json(docs[0]);
+            res.status(200).json(data);
+        })
+        .catch(err => {
+            res.status(500).json({ error: err });
+        });
 }];
 
 module.exports.userDelete = [checkAuth, (req, res, next) => {
