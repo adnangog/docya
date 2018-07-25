@@ -3,6 +3,7 @@ const path = require('path');
 const Document = require('../models/documents');
 const DocumentType = require('../models/documentTypes');
 const checkAuth = require("../middleware/checkAuth");
+const moment = require("moment");
 
 module.exports.documentAdd = [checkAuth,(req, res, next) => {
     const document = new Document({
@@ -71,10 +72,58 @@ module.exports.documentGet = [checkAuth,(req, res, next) => {
 
 module.exports.documentList = [checkAuth,(req, res, next) => {
 
-    Document.find()
-        .exec()
+    let pageOptions = {
+        page: req.body.page || 0,
+        limit: req.body.limit || 2
+    }
+    Document.aggregate([
+        { $match: {} },
+        {
+            $facet: {
+                data: [
+                    //   { $sort: sort },
+                    { $skip: pageOptions.page },
+                    { $limit: pageOptions.limit }
+                ],
+                info: [{ $group: { _id: null, count: { $sum: 1 } } }]
+            }
+        }
+    ]).exec()
         .then(docs => {
-            res.status(200).json(docs);
+            let data = {
+                "header": [
+                    [
+                        "Id",
+                        "Adı",
+                        "Tipi",
+                        "Yayın Tarihi",
+                        "Departman",
+                        "Ekleyen",
+                        "Klasör",
+                        "Kart",
+                        "Açıklama",
+                        "Versiyon",
+                        "Durum",
+                        "Kayıt Tarihi",
+                    ]
+                ],
+                "data": docs[0].data.map((x) => [
+                    x._id,
+                    x.name,
+                    x.type,
+                    `${moment(x.publishFirstDate).format("YYYY-MM-DD")} - ${moment(x.publishFirstDate).format("YYYY-MM-DD")}`,
+                    x.department,
+                    x.user,
+                    x.folder,
+                    x.card,
+                    x.description,
+                    x.version,
+                    x.status === 1 ? "Aktif" : "Pasif",
+                    moment(x.rDate).format("YYYY-MM-DD HH:mm:ss")
+                ]),
+                "count":docs[0].info[0].count
+            };
+            res.status(200).json(data);
         })
         .catch(err => {
             res.status(500).json({
@@ -158,10 +207,40 @@ module.exports.documentTypeGet = [checkAuth,(req, res, next) => {
 
 module.exports.documentTypeList = [checkAuth,(req, res, next) => {
 
-    DocumentType.find()
-        .exec()
+    let pageOptions = {
+        page: req.body.page || 0,
+        limit: req.body.limit || 2
+    }
+    DocumentType.aggregate([
+        { $match: {} },
+        {
+            $facet: {
+                data: [
+                    //   { $sort: sort },
+                    { $skip: pageOptions.page },
+                    { $limit: pageOptions.limit }
+                ],
+                info: [{ $group: { _id: null, count: { $sum: 1 } } }]
+            }
+        }
+    ]).exec()
         .then(docs => {
-            res.status(200).json(docs);
+            let data = {
+                "header": [
+                    [
+                        "Id",
+                        "Adı",
+                        "Kayıt Tarihi",
+                    ]
+                ],
+                "data": docs[0].data.map((x) => [
+                    x._id,
+                    x.name,
+                    moment(x.rDate).format("YYYY-MM-DD HH:mm:ss")
+                ]),
+                "count":docs[0].info[0].count
+            };
+            res.status(200).json(data);
         })
         .catch(err => {
             res.status(500).json({

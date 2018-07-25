@@ -10,6 +10,7 @@ const folderSchema = new schema(
         description: String,
         parent: { type: mongoose.Schema.Types.ObjectId, ref: 'Folder' },
         card: { type: mongoose.Schema.Types.ObjectId, ref: 'Card' },
+        user: { type: mongoose.Schema.Types.ObjectId, ref: 'User'},
         authSet: { type: mongoose.Schema.Types.ObjectId, ref: 'AuthoritySet' },
         sortIndex: Number,
         childs: [],

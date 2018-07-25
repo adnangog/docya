@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Folder = require('../models/folders');
 const checkAuth = require("../middleware/checkAuth");
+const moment = require("moment");
 
 
 module.exports.folderAdd = [checkAuth,(req, res, next) => {
@@ -10,10 +11,11 @@ module.exports.folderAdd = [checkAuth,(req, res, next) => {
         rDate: req.body.rDate,
         description: req.body.description,
         parent: req.body.parent,
+        user: req.body.user,
         card: req.body.card,
-        childs: req.body.childs,
-        sortIndex: req.body.sortIndex,
-        status: req.body.status
+        childs: [],
+        sortIndex: 0,
+        status: 1
     });
 
     folder.save().then(result => {
@@ -66,10 +68,52 @@ module.exports.folderGet = [checkAuth,(req, res, next) => {
 
 module.exports.folderList = [checkAuth,(req, res, next) => {
 
-    Folder.find()
-        .exec()
+    let pageOptions = {
+        page: req.body.page || 0,
+        limit: req.body.limit || 2
+    }
+    Folder.aggregate([
+        { $match: {} },
+        // { $lookup: { from: 'user', localField: 'user', foreignField: '_id', as: 'users' } },
+        {
+            $facet: {
+                data: [
+                    //   { $sort: sort },
+                    { $skip: pageOptions.page },
+                    { $limit: pageOptions.limit }
+                ],
+                info: [{ $group: { _id: null, count: { $sum: 1 } } }]
+            }
+        },
+    ]).exec()
         .then(docs => {
-            res.status(200).json(docs);
+            console.log(docs[0]);
+            let data = {
+                "header": [
+                    [
+                        "Id",
+                        "Adı",
+                        "Üst Klasör",
+                        "Ekleyen",
+                        "Kart",
+                        "Açıklama",
+                        "Durum",
+                        "Kayıt Tarihi",
+                    ]
+                ],
+                "data": docs[0].data.map((x) => [
+                    x._id,
+                    x.name,
+                    x.parent,
+                    x.user,
+                    x.card,
+                    x.description,
+                    x.status === 1 ? "Aktif" : "Pasif",
+                    moment(x.rDate).format("YYYY-MM-DD HH:mm:ss")
+                ]),
+                "count":docs[0].info[0].count
+            };
+            res.status(200).json(data);
         })
         .catch(err => {
             res.status(500).json({

@@ -9,6 +9,7 @@ const transactionSchema = new schema(
         user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
         type: { type: mongoose.Schema.Types.ObjectId, ref: 'TransactionType', required: true },
         document: { type: mongoose.Schema.Types.ObjectId, ref: 'Document', required: true },
+        card: { type: mongoose.Schema.Types.ObjectId, ref: 'Card', required: true },
     }
 
 );

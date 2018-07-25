@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const multer = require('multer');
-
 const Department = require('../models/departments');
 const checkAuth = require("../middleware/checkAuth");
+const moment = require("moment");
 
 const storage = multer.diskStorage({
     destination: function(req, file, cb){
@@ -76,10 +76,40 @@ module.exports.departmentGet = [checkAuth,(req, res, next) => {
 
 module.exports.departmentList = [checkAuth,(req, res, next) => {
 
-    Department.find()
-        .exec()
+    let pageOptions = {
+        page: req.body.page || 0,
+        limit: req.body.limit || 2
+    }
+    Department.aggregate([
+        { $match: {} },
+        {
+            $facet: {
+                data: [
+                    //   { $sort: sort },
+                    { $skip: pageOptions.page },
+                    { $limit: pageOptions.limit }
+                ],
+                info: [{ $group: { _id: null, count: { $sum: 1 } } }]
+            }
+        }
+    ]).exec()
         .then(docs => {
-            res.status(200).json(docs);
+            let data = {
+                "header": [
+                    [
+                        "Id",
+                        "Departman Adı",
+                        "Kayıt Tarihi",
+                    ]
+                ],
+                "data": docs[0].data.map((x) => [
+                    x._id,
+                    x.name,
+                    moment(x.rDate).format("YYYY-MM-DD HH:mm:ss")
+                ]),
+                "count":docs[0].info[0].count
+            };
+            res.status(200).json(data);
         })
         .catch(err => {
             res.status(500).json({

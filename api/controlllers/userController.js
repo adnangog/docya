@@ -109,7 +109,7 @@ module.exports.userList = [checkAuth, (req, res, next) => {
         {
             $facet: {
                 data: [
-                    //   { $sort: sort },
+                    { $sort: { fName : -1}},
                     { $skip: pageOptions.page },
                     { $limit: pageOptions.limit }
                 ],

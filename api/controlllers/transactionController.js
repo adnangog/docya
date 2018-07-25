@@ -2,16 +2,16 @@ const mongoose = require('mongoose');
 const path = require('path');
 const Transaction = require('../models/transactions');
 const checkAuth = require("../middleware/checkAuth");
+const moment = require("moment");
 
 module.exports.transactionAdd = [checkAuth,(req, res, next) => {
     const transaction = new Transaction({
         _id: new mongoose.Types.ObjectId(),
-        userId: req.body.userId,
+        user: req.body.user,
+        type: req.body.type,
+        document: req.body.document,
+        card: req.body.card,
         rDate: req.body.rDate,
-        tpId: req.body.tpId,
-        tpName: req.body.tpName,
-        dcmId: req.body.dcmId,
-        dcmName: req.body.dcmName,
     });
 
     transaction.save().then(result => {
@@ -66,10 +66,46 @@ module.exports.transactionGet = [checkAuth,(req, res, next) => {
 
 module.exports.transactionList = [checkAuth,(req, res, next) => {
 
-    Transaction.find()
-        .exec()
+    let pageOptions = {
+        page: req.body.page || 0,
+        limit: req.body.limit || 2
+    }
+    Transaction.aggregate([
+        { $match: {} },
+        {
+            $facet: {
+                data: [
+                    //   { $sort: sort },
+                    { $skip: pageOptions.page },
+                    { $limit: pageOptions.limit }
+                ],
+                info: [{ $group: { _id: null, count: { $sum: 1 } } }]
+            }
+        }
+    ]).exec()
         .then(docs => {
-            res.status(200).json(docs);
+            let data = {
+                "header": [
+                    [
+                        "Id",
+                        "Tip",
+                        "Ekleyen",
+                        "Kart",
+                        "Döküman",
+                        "Kayıt Tarihi",
+                    ]
+                ],
+                "data": docs[0].data.map((x) => [
+                    x._id,
+                    x.type,
+                    x.user,
+                    x.card,
+                    x.document,
+                    moment(x.rDate).format("YYYY-MM-DD HH:mm:ss")
+                ]),
+                "count":docs[0].info[0].count
+            };
+            res.status(200).json(data);
         })
         .catch(err => {
             res.status(500).json({
