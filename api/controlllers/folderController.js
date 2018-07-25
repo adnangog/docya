@@ -74,7 +74,9 @@ module.exports.folderList = [checkAuth,(req, res, next) => {
     }
     Folder.aggregate([
         { $match: {} },
-        // { $lookup: { from: 'user', localField: 'user', foreignField: '_id', as: 'users' } },
+         { $lookup: { from: 'cards', localField: 'card', foreignField: '_id', as: 'card' } },
+         { $lookup: { from: 'users', localField: 'user', foreignField: '_id', as: 'user' } },
+         { $lookup: { from: 'folders', localField: 'parent', foreignField: '_id', as: 'parent' } },
         {
             $facet: {
                 data: [
@@ -104,9 +106,9 @@ module.exports.folderList = [checkAuth,(req, res, next) => {
                 "data": docs[0].data.map((x) => [
                     x._id,
                     x.name,
-                    x.parent,
-                    x.user,
-                    x.card,
+                    x.parent.length > 0 ? x.parent[0].name : [],
+                    x.user.length > 0 ? x.user[0].fName : [],
+                    x.card.length > 0 ? x.card[0].name : [],
                     x.description,
                     x.status === 1 ? "Aktif" : "Pasif",
                     moment(x.rDate).format("YYYY-MM-DD HH:mm:ss")
