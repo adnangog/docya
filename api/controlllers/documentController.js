@@ -1,38 +1,74 @@
 const mongoose = require('mongoose');
+const multer = require('multer');
 const path = require('path');
 const Document = require('../models/documents');
+const Version = require('../models/versions');
 const DocumentType = require('../models/documentTypes');
 const checkAuth = require("../middleware/checkAuth");
 const moment = require("moment");
 
-module.exports.documentAdd = [checkAuth,(req, res, next) => {
-    const document = new Document({
+const storage = multer.diskStorage({
+    destination: function(req, file, cb){
+        cb(null, './uploads/');
+    },
+    filename: function(req, file, cb){
+        cb(null, new Date().toISOString() + file.originalname);
+    }
+});
+
+const upload = multer({ storage: storage });
+
+module.exports.documentAdd = [checkAuth,upload.single('file'), (req, res, next) => {
+
+    const version = new Version({
         _id: new mongoose.Types.ObjectId(),
-        name: req.body.name,
-        type: req.body.type,
-        rDate: req.body.rDate,
-        publishFirstDate: req.body.publishFirstDate,
-        publishEndDate: req.body.publishEndDate,
-        department: req.body.department,
+        code: "1.0.0",
+        date: req.body.rDate,
+        file: !!req.file ? req.file.filename : null,
         user: req.body.user,
-        description: req.body.description,
-        tags: req.body.tags,
-        status: req.body.status,
-        version: req.body.version
+        fileType: "jpg",
+        status: 1
     });
 
-    document.save().then(result => {
-        res.status(201).json({
-            message: "Dokuman kaydedildi.",
-            messageType: 1,
-            document: document
+    version.save().then(result => {
+        const document = new Document({
+            _id: new mongoose.Types.ObjectId(),
+            name: req.body.name,
+            type: req.body.type,
+            rDate: req.body.rDate,
+            publishFirstDate: req.body.publishFirstDate,
+            publishEndDate: req.body.publishEndDate,
+            department: req.body.department,
+            user: req.body.user,
+            folder: req.body.folder,
+            card: req.body.card,
+            authSet:req.body.authSet,
+            description: req.body.description,
+            tags: [],
+            status: req.body.status,
+            version: version._id
         });
+    
+        document.save().then(result => {
+            res.status(201).json({
+                message: "Dokuman kaydedildi.",
+                messageType: 1,
+                document: document
+            });
+        }).catch(err => {
+            res.status(500).json({
+                error: err
+            });
+            console.log(err);
+        });
+
     }).catch(err => {
         res.status(500).json({
             error: err
         });
         console.log(err);
     });
+
 }];
 
 module.exports.documentUpdate = [checkAuth,(req, res, next) => {
@@ -78,6 +114,11 @@ module.exports.documentList = [checkAuth,(req, res, next) => {
     }
     Document.aggregate([
         { $match: {} },
+        { $lookup: { from: 'cards', localField: 'card', foreignField: '_id', as: 'card' } },
+        { $lookup: { from: 'users', localField: 'user', foreignField: '_id', as: 'user' } },
+        { $lookup: { from: 'folders', localField: 'parent', foreignField: '_id', as: 'parent' } },
+        { $lookup: { from: 'departments', localField: 'department', foreignField: '_id', as: 'department' } },
+        { $lookup: { from: 'documenttypes', localField: 'type', foreignField: '_id', as: 'type' } },
         {
             $facet: {
                 data: [
@@ -110,12 +151,12 @@ module.exports.documentList = [checkAuth,(req, res, next) => {
                 "data": docs[0].data.map((x) => [
                     x._id,
                     x.name,
-                    x.type,
+                    x.type.length > 0 ? x.type[0].name : [],
                     `${moment(x.publishFirstDate).format("YYYY-MM-DD")} - ${moment(x.publishFirstDate).format("YYYY-MM-DD")}`,
-                    x.department,
-                    x.user,
-                    x.folder,
-                    x.card,
+                    x.parent.length > 0 ? x.parent[0].name : [],
+                    x.user.length > 0 ? `${x.user[0].fName} ${x.user[0].lName}` : [],
+                    x.card.length > 0 ? x.card[0].name : [],
+                    x.department.length > 0 ? x.department[0].name : [],
                     x.description,
                     x.version,
                     x.status === 1 ? "Aktif" : "Pasif",

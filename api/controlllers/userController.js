@@ -156,7 +156,6 @@ module.exports.userDelete = [checkAuth, (req, res, next) => {
             res.status(200).json(result);
         })
         .catch(err => {
-            console.log(err);
             res.status(500).json({
                 error: err
             });
@@ -164,7 +163,6 @@ module.exports.userDelete = [checkAuth, (req, res, next) => {
 }];
 
 module.exports.userLogin = (req, res, next) => {
-    console.log(req.body);
     User.find({ email: req.body.email })
         .exec()
         .then(user => {
@@ -197,6 +195,8 @@ module.exports.userLogin = (req, res, next) => {
                     );
                     return res.status(200)
                         .json({
+                            userId: user[0]._id,
+                            userName: `${user[0].fName} ${user[0].lName}`,
                             token: token,
                             message: "Login başarılı",
                             messageType: 1
@@ -211,7 +211,6 @@ module.exports.userLogin = (req, res, next) => {
             })
         })
         .catch(err => {
-            console.log(err);
             res.status(500).json({
                 error: err
             });

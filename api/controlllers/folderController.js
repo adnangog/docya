@@ -89,7 +89,6 @@ module.exports.folderList = [checkAuth,(req, res, next) => {
         },
     ]).exec()
         .then(docs => {
-            console.log(docs[0]);
             let data = {
                 "header": [
                     [
@@ -107,7 +106,7 @@ module.exports.folderList = [checkAuth,(req, res, next) => {
                     x._id,
                     x.name,
                     x.parent.length > 0 ? x.parent[0].name : [],
-                    x.user.length > 0 ? x.user[0].fName : [],
+                    x.user.length > 0 ? `${x.user[0].fName} ${x.user[0].lName}` : [],
                     x.card.length > 0 ? x.card[0].name : [],
                     x.description,
                     x.status === 1 ? "Aktif" : "Pasif",
@@ -129,6 +128,7 @@ module.exports.folderDelete = [checkAuth,(req, res, next) => {
     Folder.remove({ _id: folderId })
         .exec()
         .then(result => {
+            console.log(result);
             res.status(200).json(result);
         })
         .catch(err => {
