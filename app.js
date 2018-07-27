@@ -9,6 +9,7 @@ const cardRoute = require('./api/routes/cardRoute');
 const departmentRoute = require('./api/routes/departmentRoute');
 const transactionRoute = require('./api/routes/transactionRoute');
 const tagRoute = require('./api/routes/tagRoute');
+const formRoute = require('./api/routes/formRoute');
 
 const app = express();
 const mongoose = require('mongoose');
@@ -40,5 +41,6 @@ app.use('/card', cardRoute);
 app.use('/department', departmentRoute);
 app.use('/transaction', transactionRoute);
 app.use('/tag', tagRoute);
+app.use('/form', formRoute);
 
 app.listen(8000)

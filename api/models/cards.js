@@ -6,10 +6,15 @@ const cardSchema = new schema(
     {
         _id: mongoose.Schema.Types.ObjectId,
         name: { type: String, required: true },
-        rDate: Date,
         authSet: { type: mongoose.Schema.Types.ObjectId, ref: 'AuthoritySet' },
+        user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
         status: Number,
-        type:Number //1- Dosya Karti 2- Kabinet
+        type:Number, //1- Dosya Karti 2- Kabinet
+        rDate: Date,
+        form: { type: mongoose.Schema.Types.ObjectId, ref: 'Form' },
+        lock: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        uDate: Date,
+        uUser: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
     }
 
 );
