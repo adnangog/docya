@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const schema = mongoose.Schema;
 
-const cardSchema = new schema(
+const documentCardSchema = new schema(
     {
         _id: mongoose.Schema.Types.ObjectId,
         name: { type: String, required: true },
@@ -11,11 +11,15 @@ const cardSchema = new schema(
         status: Number,
         type:Number, //1- Dosya Karti 2- Kabinet
         rDate: Date,
-        form: { type: mongoose.Schema.Types.ObjectId, ref: 'Form' }
+        form: { type: mongoose.Schema.Types.ObjectId, ref: 'Form' },
+        fields : [mongoose.Schema.Types.Mixed],
+        lock: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        uDate: Date,
+        uUser: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
     }
 
 );
 
-const Card = mongoose.model('Card', cardSchema);
+const DocumentCard = mongoose.model('DocumentCard', documentCardSchema);
 
-module.exports = Card;
+module.exports = DocumentCard;
