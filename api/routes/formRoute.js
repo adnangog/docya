@@ -4,8 +4,8 @@ const controller = require('../controlllers/formController')
 
 router.post('/', controller.formList);
 router.post('/add', controller.formAdd);
-router.patch('/:tagId', controller.formUpdate);
-router.get('/:tagId', controller.formGet);
-router.delete('/:tagId', controller.formDelete);
+router.patch('/:formId', controller.formUpdate);
+router.get('/:formId', controller.formGet);
+router.delete('/:formId', controller.formDelete);
 
 module.exports = router;
