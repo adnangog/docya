@@ -1,25 +1,26 @@
 const mongoose = require('mongoose');
 const path = require('path');
-const Form = require('../models/forms');
+const CardTemplate = require('../models/cardtemplates');
 const checkAuth = require("../middleware/checkAuth");
 const moment = require("moment");
 
-module.exports.formAdd = [checkAuth,(req, res, next) => {
-    console.log(req.body);
-    const form = new Form({
+module.exports.cardtemplateAdd = [checkAuth,(req, res, next) => {
+    const cardtemplate = new CardTemplate({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
-        fields: req.body.fields,
+        authSet: req.body.authSet,
         user: req.body.user,
-        status:1,
+        status: 1,
+        type: req.body.type,
+        form:req.body.form,
         rDate: req.body.rDate
     });
 
-    form.save().then(result => {
+    cardtemplate.save().then(result => {
         res.status(201).json({
-            message: "Form kaydedildi.",
+            message: "Taslak kaydedildi.",
             messageType: 1,
-            form: form
+            cardtemplate: cardtemplate
         });
     }).catch(err => {
         res.status(500).json({
@@ -28,12 +29,12 @@ module.exports.formAdd = [checkAuth,(req, res, next) => {
         console.log(err);
     });
 
-    
 }];
 
-module.exports.formUpdate = [checkAuth,(req, res, next) => {
-    const formId = req.params.formId;
-    Form.update({ _id: formId }, { $set: req.body })
+module.exports.cardtemplateUpdate = [checkAuth,(req, res, next) => {
+    const cardId = req.params.cardId;
+
+    CardTemplate.update({ _id: cardId }, { $set: req.body })
         .exec()
         .then(doc => {
             res.status(200).json(doc);
@@ -46,9 +47,9 @@ module.exports.formUpdate = [checkAuth,(req, res, next) => {
         });
 }]
 
-module.exports.formGet = [checkAuth,(req, res, next) => {
-    const formId = req.params.formId;
-    Form.findById(formId)
+module.exports.cardtemplateGet = [checkAuth,(req, res, next) => {
+    const cardId = req.params.cardId;
+    CardTemplate.findById(cardId)
         .exec()
         .then(doc => {
             if (doc) {
@@ -65,13 +66,12 @@ module.exports.formGet = [checkAuth,(req, res, next) => {
         });
 }]
 
-module.exports.formList = [checkAuth,(req, res, next) => {
-
+module.exports.cardtemplateList = [checkAuth,(req, res, next) => {
     let pageOptions = {
         page: req.body.page || 0,
         limit: req.body.limit || 2
     }
-    Form.aggregate([
+    CardTemplate.aggregate([
         { $match: {} },
         {
             $facet: {
@@ -90,12 +90,16 @@ module.exports.formList = [checkAuth,(req, res, next) => {
                     [
                         "Id",
                         "Adı",
+                        "Tipi",
+                        "Durum",
                         "Kayıt Tarihi",
                     ]
                 ],
                 "data": docs[0].data.map((x) => [
                     x._id,
                     x.name,
+                    x.type === 1 ? "Dosya Kartı" : "Kabinet",
+                    x.status === 1 ? "Aktif" : "Pasif",
                     moment(x.rDate).format("YYYY-MM-DD HH:mm:ss")
                 ]),
                 "count":docs[0].info[0].count
@@ -109,9 +113,9 @@ module.exports.formList = [checkAuth,(req, res, next) => {
         });
 }]
 
-module.exports.formDelete = [checkAuth,(req, res, next) => {
-    const formId = req.params.formId;
-    Form.remove({ _id: formId })
+module.exports.cardtemplateDelete = [checkAuth,(req, res, next) => {
+    const cardId = req.params.cardId;
+    CardTemplate.remove({ _id: cardId })
         .exec()
         .then(result => {
             res.status(200).json(result);
