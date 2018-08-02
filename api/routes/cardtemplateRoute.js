@@ -4,8 +4,8 @@ const controller = require('../controlllers/cardtemplateController')
 
 router.post('/', controller.cardtemplateList);
 router.post('/add', controller.cardtemplateAdd);
-router.patch('/:cardId', controller.cardtemplateUpdate);
-router.get('/:cardId', controller.cardtemplateGet);
-router.delete('/:cardId', controller.cardtemplateDelete);
+router.patch('/:cardtemplateId', controller.cardtemplateUpdate);
+router.get('/:cardtemplateId', controller.cardtemplateGet);
+router.delete('/:cardtemplateId', controller.cardtemplateDelete);
 
 module.exports = router;

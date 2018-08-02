@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const schema = mongoose.Schema;
 
-const cardSchema = new schema(
+const cardTemplateSchema = new schema(
     {
         _id: mongoose.Schema.Types.ObjectId,
         name: { type: String, required: true },
@@ -16,6 +16,6 @@ const cardSchema = new schema(
 
 );
 
-const Card = mongoose.model('Card', cardSchema);
+const CardTemplate = mongoose.model('CardTemplate', cardTemplateSchema);
 
-module.exports = Card;
+module.exports = CardTemplate;

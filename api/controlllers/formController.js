@@ -5,7 +5,6 @@ const checkAuth = require("../middleware/checkAuth");
 const moment = require("moment");
 
 module.exports.formAdd = [checkAuth,(req, res, next) => {
-    console.log(req.body);
     const form = new Form({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,

@@ -32,9 +32,9 @@ module.exports.cardtemplateAdd = [checkAuth,(req, res, next) => {
 }];
 
 module.exports.cardtemplateUpdate = [checkAuth,(req, res, next) => {
-    const cardId = req.params.cardId;
-
-    CardTemplate.update({ _id: cardId }, { $set: req.body })
+    const cardtemplateId = req.params.cardtemplateId;
+    
+    CardTemplate.update({ _id: cardtemplateId }, { $set: req.body })
         .exec()
         .then(doc => {
             res.status(200).json(doc);
@@ -48,8 +48,8 @@ module.exports.cardtemplateUpdate = [checkAuth,(req, res, next) => {
 }]
 
 module.exports.cardtemplateGet = [checkAuth,(req, res, next) => {
-    const cardId = req.params.cardId;
-    CardTemplate.findById(cardId)
+    const cardtemplateId = req.params.cardtemplateId;
+    CardTemplate.findById(cardtemplateId)
         .exec()
         .then(doc => {
             if (doc) {
@@ -114,8 +114,8 @@ module.exports.cardtemplateList = [checkAuth,(req, res, next) => {
 }]
 
 module.exports.cardtemplateDelete = [checkAuth,(req, res, next) => {
-    const cardId = req.params.cardId;
-    CardTemplate.remove({ _id: cardId })
+    const cardtemplateId = req.params.cardtemplateId;
+    CardTemplate.remove({ _id: cardtemplateId })
         .exec()
         .then(result => {
             res.status(200).json(result);
