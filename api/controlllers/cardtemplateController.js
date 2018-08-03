@@ -33,7 +33,7 @@ module.exports.cardtemplateAdd = [checkAuth,(req, res, next) => {
 
 module.exports.cardtemplateUpdate = [checkAuth,(req, res, next) => {
     const cardtemplateId = req.params.cardtemplateId;
-    
+
     CardTemplate.update({ _id: cardtemplateId }, { $set: req.body })
         .exec()
         .then(doc => {
@@ -50,6 +50,7 @@ module.exports.cardtemplateUpdate = [checkAuth,(req, res, next) => {
 module.exports.cardtemplateGet = [checkAuth,(req, res, next) => {
     const cardtemplateId = req.params.cardtemplateId;
     CardTemplate.findById(cardtemplateId)
+        .populate('form', 'fields')
         .exec()
         .then(doc => {
             if (doc) {

@@ -3,12 +3,19 @@ const path = require('path');
 const Card = require('../models/cards');
 const checkAuth = require("../middleware/checkAuth");
 const moment = require("moment");
+const helper = require("../helpers/index");
 
 module.exports.cardAdd = [checkAuth,(req, res, next) => {
     const card = new Card({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
         authSet: req.body.authSet,
+        user: req.body.user,
+        status: 1,
+        type: req.body.type,
+        form: req.body.form,
+        cardTemplate: req.body.cardTemplate,
+        fields: req.body.fields,
         rDate: req.body.rDate
     });
 
@@ -60,15 +67,18 @@ module.exports.cardGet = [checkAuth,(req, res, next) => {
                 error: err
             });
         });
-}]
+}];
 
-module.exports.cardList = [checkAuth,(req, res, next) => {
+module.exports.cardList = [checkAuth, (req, res, next) => {
     let pageOptions = {
         page: req.body.page || 0,
         limit: req.body.limit || 2
     }
+    var data = '';
+
     Card.aggregate([
-        { $match: {} },
+         { $match: { $or: [ { "fields.adiniz_soyadiniz": new RegExp(data, 'i') }, { "fields.egitim_durumu": new RegExp(data, 'i') } ] } },
+        { $match: { "cardTemplate": mongoose.Types.ObjectId(req.body.cardTemplateId) } },
         {
             $facet: {
                 data: [
@@ -88,18 +98,31 @@ module.exports.cardList = [checkAuth,(req, res, next) => {
                         "Adı",
                         "Tipi",
                         "Durum",
-                        "Kayıt Tarihi",
+                        "Kayıt Tarihi"
                     ]
                 ],
-                "data": docs[0].data.map((x) => [
+                "data": docs[0].data.map((x, i) => [
                     x._id,
                     x.name,
                     x.type === 1 ? "Dosya Kartı" : "Kabinet",
                     x.status === 1 ? "Aktif" : "Pasif",
-                    moment(x.rDate).format("YYYY-MM-DD HH:mm:ss")
+                    moment(x.rDate).format("YYYY-MM-DD HH:mm:ss"),
+                    x.fields // cIndex degiskeni degerini bu itemin indexinden aliyor.
                 ]),
-                "count":docs[0].info[0].count
+                "count": docs[0].info.length > 0 ? docs[0].info[0].count : 0
             };
+
+            let cIndex = 5;
+
+            if (docs[0].data.length > 0) {
+                Object.keys(docs[0].data[0].fields[0]).map(x => data.header[0].push(helper.cHeaderText(x)));
+
+                data.data.map((d, i) => {
+                    Object.keys(d[cIndex][0]).map(f => d.push(d[cIndex][0][f]));
+                    d.splice(cIndex, 1)
+                });
+            }
+
             res.status(200).json(data);
         })
         .catch(err => {
