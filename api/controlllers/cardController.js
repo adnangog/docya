@@ -20,6 +20,7 @@ module.exports.cardAdd = [checkAuth,(req, res, next) => {
     });
 
     card.save().then(result => {
+        console.log(result)
         res.status(201).json({
             message: "Kart kaydedildi.",
             messageType: 1,
@@ -77,7 +78,7 @@ module.exports.cardList = [checkAuth, (req, res, next) => {
     var data = '';
 
     Card.aggregate([
-         { $match: { $or: [ { "fields.adiniz_soyadiniz": new RegExp(data, 'i') }, { "fields.egitim_durumu": new RegExp(data, 'i') } ] } },
+        //  { $match: { $or: [ { "fields.adiniz_soyadiniz": new RegExp(data, 'i') }, { "fields.egitim_durumu": new RegExp(data, 'i') } ] } },
         { $match: { "cardTemplate": mongoose.Types.ObjectId(req.body.cardTemplateId) } },
         {
             $facet: {
