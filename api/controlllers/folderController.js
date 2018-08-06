@@ -47,6 +47,57 @@ module.exports.folderUpdate = [checkAuth,(req, res, next) => {
         });
 }]
 
+
+  module.exports.foldersByCardId = [checkAuth,(req, res, next) => {
+    const cardId = req.params.cardId;
+
+    // Folder.findById(folderId)
+    //     .exec()
+    //     .then(doc => {
+    //         if (doc) {
+                res.status(200).json({
+                    folders: [
+                      {
+                        id:"1",
+                        name: "Dökümanlar",
+                        childs: [
+                          {
+                            id:"2",
+                            name: "Employees",
+                            childs: [
+                              {
+                                id:"3",
+                                name: "Reports"
+                              },
+                              {
+                                id:"4",
+                                name: "Employee Maint."
+                              }
+                            ]
+                          },
+                          {
+                            id:"5",
+                            name: "Company Maintenance"
+                          },
+                          {
+                            id:"6",
+                            name: "Human Resources"
+                          }
+                        ]
+                      }
+                    ]
+                  });
+        //     } else {
+        //         res.status(404).json({ message: "Bu id'ye ait bir kayit bulunamadi.", messageType: 0 });
+        //     }
+        // })
+        // .catch(err => {
+        //     console.log(err);
+        //     res.status(500).json({
+        //         error: err
+        //     });
+        // });
+}]
 module.exports.folderGet = [checkAuth,(req, res, next) => {
     const folderId = req.params.folderId;
     Folder.findById(folderId)
