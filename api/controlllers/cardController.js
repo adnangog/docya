@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const path = require('path');
 const Card = require('../models/cards');
+const Folder = require('../models/folders');
 const checkAuth = require("../middleware/checkAuth");
 const moment = require("moment");
 const helper = require("../helpers/index");
@@ -20,12 +21,32 @@ module.exports.cardAdd = [checkAuth,(req, res, next) => {
     });
 
     card.save().then(result => {
-        console.log(result)
-        res.status(201).json({
-            message: "Kart kaydedildi.",
-            messageType: 1,
-            card: card
+        const folder = new Folder({
+            _id: new mongoose.Types.ObjectId(),
+            name: "Dökümanlar",
+            rDate: req.body.rDate,
+            description: null,
+            parent: null,
+            user: req.body.user,
+            card: card._id,
+            childs: [],
+            sortIndex: 0,
+            status: 1
         });
+
+        folder.save().then(result => {
+            res.status(201).json({
+                message: "Kart kaydedildi.",
+                messageType: 1,
+                card: card
+            });
+        }).catch(err => {
+            res.status(500).json({
+                error: err
+            });
+            console.log(err);
+        });
+
     }).catch(err => {
         res.status(500).json({
             error: err
