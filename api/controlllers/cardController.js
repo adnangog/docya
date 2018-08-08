@@ -99,7 +99,7 @@ module.exports.cardList = [checkAuth, (req, res, next) => {
     var data = '';
 
     let query = {};
-    
+
     if (req.body.cardTemplateId) {
         query = { "cardTemplate": mongoose.Types.ObjectId(req.body.cardTemplateId) }
     }
@@ -119,6 +119,7 @@ module.exports.cardList = [checkAuth, (req, res, next) => {
         }
     ]).exec()
         .then(docs => {
+            
             let data = {
                 "header": [
                     [
@@ -143,17 +144,20 @@ module.exports.cardList = [checkAuth, (req, res, next) => {
             let cIndex = 5;
 
             if (docs[0].data.length > 0) {
-                Object.keys(docs[0].data[0].fields[0]).map(x => data.header[0].push(helper.cHeaderText(x)));
+                !!docs[0].data[0].fields && Object.keys(docs[0].data[0].fields[0]).map(x => data.header[0].push(helper.cHeaderText(x)));
 
                 data.data.map((d, i) => {
-                    Object.keys(d[cIndex][0]).map(f => d.push(d[cIndex][0][f]));
-                    d.splice(cIndex, 1)
+                    if (!!d[cIndex]) {
+                        Object.keys(d[cIndex][0]).map(f => d.push(d[cIndex][0][f]));
+                        d.splice(cIndex, 1)
+                    }
                 });
             }
 
             res.status(200).json(data);
         })
         .catch(err => {
+            console.log(err)
             res.status(500).json({
                 error: err
             });

@@ -21,43 +21,60 @@ module.exports.folderAdd = [
 
         folder.save()
             .then(result => {
-                Folder.aggregate([
-                    { $match: { _id: folder._id } },
-                    {
-                        $graphLookup: {
-                            from: "folders",
-                            startWith: "$parent",
-                            connectFromField: "parent",
-                            connectToField: "_id",
-                            as: "parents"
-                        }
-                    }
-                ])
-                    .exec()
-                    .then(doc => {
-                        console.log(doc);
-                        let ids = doc[0].parents.map(x => x._id);
 
-                        Folder.update({ _id: { "$in": ids } }, { $push: { childs: folder._id } }).exec()
-                            .then(ups => {
-                                res.status(201).json({
-                                    message: "Klasör kaydedildi.",
-                                    messageType: 1,
-                                    folder: folder
-                                });
-                            })
-                            .catch(err => {
-                                console.log(err);
-                                res.status(500).json({
-                                    error: err
-                                });
-                            });
+                Folder.update({ _id: req.body.parent }, { $push: { childs: folder._id } }).exec()
+                    .then(ups => {
+                        res.status(201).json({
+                            message: "Klasör kaydedildi.",
+                            messageType: 1,
+                            folder: folder
+                        });
                     })
                     .catch(err => {
+                        console.log(err);
                         res.status(500).json({
                             error: err
                         });
                     });
+
+                // Folder.aggregate([
+                //     { $match: { _id: folder._id } },
+                //     {
+                //         $graphLookup: {
+                //             from: "folders",
+                //             startWith: "$parent",
+                //             connectFromField: "parent",
+                //             connectToField: "_id",
+                //             maxDepth: 1,
+                //             as: "parents"
+                //         }
+                //     }
+                // ])
+                //     .exec()
+                //     .then(doc => {
+
+                //         let ids = doc[0].parents.map(x => new mongoose.Types.ObjectId(x._id));
+
+                //         Folder.update({ _id: { "$in": ids } }, { $push: { childs: folder._id } }, { multi: true }).exec()
+                //             .then(ups => {
+                //                 res.status(201).json({
+                //                     message: "Klasör kaydedildi.",
+                //                     messageType: 1,
+                //                     folder: folder
+                //                 });
+                //             })
+                //             .catch(err => {
+                //                 console.log(err);
+                //                 res.status(500).json({
+                //                     error: err
+                //                 });
+                //             });
+                //     })
+                //     .catch(err => {
+                //         res.status(500).json({
+                //             error: err
+                //         });
+                //     });
 
             })
             .catch(err => {
@@ -92,52 +109,32 @@ module.exports.foldersByCardId = [
     (req, res, next) => {
         const cardId = req.params.cardId;
 
-        // Folder.findById(folderId)
-        //     .exec()
-        //     .then(doc => {
-        //         if (doc) {
-        res.status(200).json({
-            folders: [
-                {
-                    id: "1",
-                    name: "Dökümanlar",
-                    childs: [
-                        {
-                            id: "2",
-                            name: "Employees",
-                            childs: [
-                                {
-                                    id: "3",
-                                    name: "Reports"
-                                },
-                                {
-                                    id: "4",
-                                    name: "Employee Maint."
-                                }
-                            ]
-                        },
-                        {
-                            id: "5",
-                            name: "Company Maintenance"
-                        },
-                        {
-                            id: "6",
-                            name: "Human Resources"
-                        }
-                    ]
+        Folder.find({ card: cardId })
+            .exec()
+            .then(doc => {
+                let getir = (id) => {
+                    let x = doc.filter((item) => { return item._id.toString() == id.toString() })[0];
+                    if (x.childs.length > 0)
+                        return { id: x._id, name: x.name, childs: x.childs.map(y => getir(y)) }
+                    else
+                        return { id: x._id, name: x.name }
+                };
+                let folders = getir(doc[0]._id);
+                console.log(JSON.stringify(folders, null, 2));
+                if (doc) {
+                    res.status(200).json({
+                        folders: [folders]
+                    });
+                } else {
+                    res.status(404).json({ message: "Bu id'ye ait bir kayit bulunamadi.", messageType: 0 });
                 }
-            ]
-        });
-        //     } else {
-        //         res.status(404).json({ message: "Bu id'ye ait bir kayit bulunamadi.", messageType: 0 });
-        //     }
-        // })
-        // .catch(err => {
-        //     console.log(err);
-        //     res.status(500).json({
-        //         error: err
-        //     });
-        // });
+            })
+            .catch(err => {
+                console.log(err);
+                res.status(500).json({
+                    error: err
+                });
+            });
     }
 ];
 module.exports.folderGet = [
