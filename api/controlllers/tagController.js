@@ -111,6 +111,7 @@ module.exports.tagDelete = [checkAuth,(req, res, next) => {
     Tag.remove({ _id: tagId })
         .exec()
         .then(result => {
+            console.log(result);
             res.status(200).json(result);
         })
         .catch(err => {

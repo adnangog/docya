@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 const checkAuth = require("../middleware/checkAuth");
 const moment = require("moment");
 
-module.exports.userAdd = [checkAuth, (req, res, next) => {
+module.exports.userAdd = [(req, res, next) => {
     User.find({ email: req.body.email })
         .exec()
         .then((user) => {
@@ -28,7 +28,7 @@ module.exports.userAdd = [checkAuth, (req, res, next) => {
                             lName: req.body.lName,
                             email: req.body.email,
                             rDate: req.body.rDate,
-                            statu: req.body.statu,
+                            status: req.body.status,
                             roleId: req.body.roleId,
                             departmentId: req.body.departmentId,
                             authorities: req.body.authorities,
@@ -135,7 +135,7 @@ module.exports.userList = [checkAuth, (req, res, next) => {
                     x.fName,
                     x.lName,
                     x.email,
-                    x.statu == 1 ? "Aktif" : "Pasif",
+                    x.status == 1 ? "Aktif" : "Pasif",
                     moment(x.rDate).format("YYYY-MM-DD HH:mm:ss")
                 ]),
                 "count":docs[0].info[0].count

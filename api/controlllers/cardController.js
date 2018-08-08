@@ -6,7 +6,7 @@ const checkAuth = require("../middleware/checkAuth");
 const moment = require("moment");
 const helper = require("../helpers/index");
 
-module.exports.cardAdd = [checkAuth,(req, res, next) => {
+module.exports.cardAdd = [checkAuth, (req, res, next) => {
     const card = new Card({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
@@ -56,7 +56,7 @@ module.exports.cardAdd = [checkAuth,(req, res, next) => {
 
 }];
 
-module.exports.cardUpdate = [checkAuth,(req, res, next) => {
+module.exports.cardUpdate = [checkAuth, (req, res, next) => {
     const cardId = req.params.cardId;
 
     Card.update({ _id: cardId }, { $set: req.body })
@@ -72,7 +72,7 @@ module.exports.cardUpdate = [checkAuth,(req, res, next) => {
         });
 }]
 
-module.exports.cardGet = [checkAuth,(req, res, next) => {
+module.exports.cardGet = [checkAuth, (req, res, next) => {
     const cardId = req.params.cardId;
     Card.findById(cardId)
         .exec()
@@ -98,9 +98,15 @@ module.exports.cardList = [checkAuth, (req, res, next) => {
     }
     var data = '';
 
+    let query = {};
+    
+    if (req.body.cardTemplateId) {
+        query = { "cardTemplate": mongoose.Types.ObjectId(req.body.cardTemplateId) }
+    }
+
     Card.aggregate([
         //  { $match: { $or: [ { "fields.adiniz_soyadiniz": new RegExp(data, 'i') }, { "fields.egitim_durumu": new RegExp(data, 'i') } ] } },
-        { $match: { "cardTemplate": mongoose.Types.ObjectId(req.body.cardTemplateId) } },
+        { $match: query },
         {
             $facet: {
                 data: [
@@ -154,7 +160,7 @@ module.exports.cardList = [checkAuth, (req, res, next) => {
         });
 }]
 
-module.exports.cardDelete = [checkAuth,(req, res, next) => {
+module.exports.cardDelete = [checkAuth, (req, res, next) => {
     const cardId = req.params.cardId;
     Card.remove({ _id: cardId })
         .exec()
