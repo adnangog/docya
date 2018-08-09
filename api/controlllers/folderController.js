@@ -115,12 +115,11 @@ module.exports.foldersByCardId = [
                 let getir = (id) => {
                     let x = doc.filter((item) => { return item._id.toString() == id.toString() })[0];
                     if (x.childs.length > 0)
-                        return { id: x._id, name: x.name, childs: x.childs.map(y => getir(y)) }
+                        return { id: x._id, name: x.name, type: "folder", childs: x.childs.map(y => getir(y)) }
                     else
-                        return { id: x._id, name: x.name }
+                        return { id: x._id, name: x.name, type: "folder" }
                 };
                 let folders = getir(doc[0]._id);
-                console.log(JSON.stringify(folders, null, 2));
                 if (doc) {
                     res.status(200).json({
                         folders: [folders]
