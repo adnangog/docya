@@ -8,33 +8,34 @@ const checkAuth = require("../middleware/checkAuth");
 const moment = require("moment");
 
 const storage = multer.diskStorage({
-    destination: function(req, file, cb){
+    destination: function (req, file, cb) {
         cb(null, './uploads/');
     },
-    filename: function(req, file, cb){
+    filename: function (req, file, cb) {
         cb(null, new Date().toISOString() + file.originalname);
     }
 });
 
 const upload = multer({ storage: storage });
 
-module.exports.documentAdd = [checkAuth,upload.single('file'), (req, res, next) => {
+module.exports.documentAdd = [checkAuth, (req, res, next) => {
 
     const version = new Version({
         _id: new mongoose.Types.ObjectId(),
         code: "1.0.0",
         date: req.body.rDate,
-        file: !!req.file ? req.file.filename : null,
+        file: req.body.file,
+        filename: req.body.filename,
         user: req.body.user,
         fileType: "jpg",
         status: 1
     });
 
     version.save().then(result => {
+        console.log(result);
         const document = new Document({
             _id: new mongoose.Types.ObjectId(),
             name: req.body.name,
-            type: req.body.type,
             rDate: req.body.rDate,
             publishFirstDate: req.body.publishFirstDate,
             publishEndDate: req.body.publishEndDate,
@@ -42,14 +43,15 @@ module.exports.documentAdd = [checkAuth,upload.single('file'), (req, res, next) 
             user: req.body.user,
             folder: req.body.folder,
             card: req.body.card,
-            authSet:req.body.authSet,
+            authSet: req.body.authSet,
             description: req.body.description,
             tags: [],
             status: req.body.status,
             version: version._id
         });
-    
+
         document.save().then(result => {
+            console.log(result);
             res.status(201).json({
                 message: "Dokuman kaydedildi.",
                 messageType: 1,
@@ -71,7 +73,64 @@ module.exports.documentAdd = [checkAuth,upload.single('file'), (req, res, next) 
 
 }];
 
-module.exports.documentUpdate = [checkAuth,(req, res, next) => {
+module.exports.documentAdds = [checkAuth, (req, res, next) => {
+
+    let totalItems = !!req.body.json && JSON.parse(req.body.json).length || 0;
+    
+
+    totalItems > 0 && JSON.parse(req.body.json).map((x, i) => {
+        const version = new Version({
+            _id: new mongoose.Types.ObjectId(),
+            code: "1.0.0",
+            date: req.body.rDate,
+            name: x.name,
+            file: x.filename,
+            filename: x.originalname,
+            user: req.body.user,
+            fileType: x.mimetype,
+            size: x.size,
+            status: 1
+        });
+
+        version.save().then(result => {
+            const document = new Document({
+                _id: new mongoose.Types.ObjectId(),
+                name: x.name,
+                rDate: req.body.rDate,
+                user: req.body.user,
+                folder: req.body.folder,
+                card: req.body.card,
+                authSet: req.body.authSet,
+                status: req.body.status,
+                version: version._id
+            });
+
+            document.save().then(result => {
+                if (totalItems - i === 1) {
+                    res.status(201).json({
+                        message: "Dokuman(lar) kaydedildi.",
+                        messageType: 1
+                    });
+                }
+            }).catch(err => {
+                res.status(500).json({
+                    error: err
+                });
+                console.log(err);
+            });
+
+        }).catch(err => {
+            res.status(500).json({
+                error: err
+            });
+            console.log(err);
+        });
+    });
+
+}];
+
+
+module.exports.documentUpdate = [checkAuth, (req, res, next) => {
     const documentId = req.params.documentId;
     Document.update({ _id: documentId }, { $set: req.body })
         .exec()
@@ -86,7 +145,7 @@ module.exports.documentUpdate = [checkAuth,(req, res, next) => {
         });
 }]
 
-module.exports.documentGet = [checkAuth,(req, res, next) => {
+module.exports.documentGet = [checkAuth, (req, res, next) => {
     const documentId = req.params.documentId;
     Document.findById(documentId)
         .populate('type', 'name')
@@ -106,7 +165,7 @@ module.exports.documentGet = [checkAuth,(req, res, next) => {
         });
 }]
 
-module.exports.documentList = [checkAuth,(req, res, next) => {
+module.exports.documentList = [checkAuth, (req, res, next) => {
 
     let pageOptions = {
         page: req.body.page || 0,
@@ -116,9 +175,8 @@ module.exports.documentList = [checkAuth,(req, res, next) => {
         { $match: {} },
         { $lookup: { from: 'cards', localField: 'card', foreignField: '_id', as: 'card' } },
         { $lookup: { from: 'users', localField: 'user', foreignField: '_id', as: 'user' } },
-        { $lookup: { from: 'folders', localField: 'parent', foreignField: '_id', as: 'parent' } },
+        { $lookup: { from: 'folders', localField: 'folder', foreignField: '_id', as: 'folder' } },
         { $lookup: { from: 'departments', localField: 'department', foreignField: '_id', as: 'department' } },
-        { $lookup: { from: 'documenttypes', localField: 'type', foreignField: '_id', as: 'type' } },
         {
             $facet: {
                 data: [
@@ -136,7 +194,6 @@ module.exports.documentList = [checkAuth,(req, res, next) => {
                     [
                         "Id",
                         "Adı",
-                        "Tipi",
                         "Yayın Tarihi",
                         "Departman",
                         "Ekleyen",
@@ -151,18 +208,17 @@ module.exports.documentList = [checkAuth,(req, res, next) => {
                 "data": docs[0].data.map((x) => [
                     x._id,
                     x.name,
-                    x.type.length > 0 ? x.type[0].name : [],
                     `${moment(x.publishFirstDate).format("YYYY-MM-DD")} - ${moment(x.publishFirstDate).format("YYYY-MM-DD")}`,
-                    x.parent.length > 0 ? x.parent[0].name : [],
-                    x.user.length > 0 ? `${x.user[0].fName} ${x.user[0].lName}` : [],
-                    x.card.length > 0 ? x.card[0].name : [],
                     x.department.length > 0 ? x.department[0].name : [],
+                    x.user.length > 0 ? `${x.user[0].fName} ${x.user[0].lName}` : [],
+                    x.folder.length > 0 ? x.folder[0].name : [],
+                    x.card.length > 0 ? x.card[0].name : [],
                     x.description,
                     x.version,
                     x.status === 1 ? "Aktif" : "Pasif",
                     moment(x.rDate).format("YYYY-MM-DD HH:mm:ss")
                 ]),
-                "count":docs[0].info[0].count
+                "count": docs[0].info[0].count
             };
             res.status(200).json(data);
         })
@@ -173,7 +229,7 @@ module.exports.documentList = [checkAuth,(req, res, next) => {
         });
 }]
 
-module.exports.documentDelete = [checkAuth,(req, res, next) => {
+module.exports.documentDelete = [checkAuth, (req, res, next) => {
     const documentId = req.params.documentId;
     Document.remove({ _id: documentId })
         .exec()
@@ -189,7 +245,7 @@ module.exports.documentDelete = [checkAuth,(req, res, next) => {
 
 }]
 
-module.exports.documentTypeAdd = [checkAuth,(req, res, next) => {
+module.exports.documentTypeAdd = [checkAuth, (req, res, next) => {
     const documentType = new DocumentType({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
@@ -212,7 +268,7 @@ module.exports.documentTypeAdd = [checkAuth,(req, res, next) => {
 
 }];
 
-module.exports.documentTypeUpdate = [checkAuth,(req, res, next) => {
+module.exports.documentTypeUpdate = [checkAuth, (req, res, next) => {
     const typeId = req.params.typeId;
     DocumentType.update({ _id: typeId }, { $set: req.body })
         .exec()
@@ -227,7 +283,7 @@ module.exports.documentTypeUpdate = [checkAuth,(req, res, next) => {
         });
 }]
 
-module.exports.documentTypeGet = [checkAuth,(req, res, next) => {
+module.exports.documentTypeGet = [checkAuth, (req, res, next) => {
     const typeId = req.params.typeId;
     DocumentType.findById(typeId)
         .exec()
@@ -246,7 +302,7 @@ module.exports.documentTypeGet = [checkAuth,(req, res, next) => {
         });
 }]
 
-module.exports.documentTypeList = [checkAuth,(req, res, next) => {
+module.exports.documentTypeList = [checkAuth, (req, res, next) => {
 
     let pageOptions = {
         page: req.body.page || 0,
@@ -279,7 +335,7 @@ module.exports.documentTypeList = [checkAuth,(req, res, next) => {
                     x.name,
                     moment(x.rDate).format("YYYY-MM-DD HH:mm:ss")
                 ]),
-                "count":docs[0].info[0].count
+                "count": docs[0].info[0].count
             };
             res.status(200).json(data);
         })
@@ -290,7 +346,7 @@ module.exports.documentTypeList = [checkAuth,(req, res, next) => {
         });
 }]
 
-module.exports.documentTypeDelete = [checkAuth,(req, res, next) => {
+module.exports.documentTypeDelete = [checkAuth, (req, res, next) => {
     const typeId = req.params.typeId;
     DocumentType.remove({ _id: typeId })
         .exec()

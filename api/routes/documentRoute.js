@@ -9,6 +9,7 @@ router.get('/type/:typeId', controller.documentTypeGet);
 router.delete('/type/:typeId', controller.documentTypeDelete);
 router.post('/', controller.documentList);
 router.post('/add', controller.documentAdd);
+router.post('/adds', controller.documentAdds);
 router.patch('/:documentId', controller.documentUpdate);
 router.get('/:documentId', controller.documentGet);
 router.delete('/:documentId', controller.documentDelete);

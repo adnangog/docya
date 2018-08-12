@@ -6,7 +6,6 @@ const documentSchema = new schema(
     {
         _id: mongoose.Schema.Types.ObjectId,
         name: { type: String, required: true },
-        type: { type: mongoose.Schema.Types.ObjectId, ref: 'DocumentType', required: true },
         rDate: Date,
         publishFirstDate: Date,
         publishEndDate: Date,
