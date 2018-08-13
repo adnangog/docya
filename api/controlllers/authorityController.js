@@ -6,7 +6,7 @@ const moment = require("moment");
 
 module.exports.authorityAdd = [checkAuth, (req, res, next) => {
     const authority = new Authority({
-        _id: new mongoose.Types.ObjectId(),
+        _id: req.body._id,
         name: req.body.name,
         rDate: req.body.rDate
     });
