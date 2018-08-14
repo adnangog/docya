@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const controller = require('../controlllers/formController')
+const controller = require('../controllers/formController')
 
 router.post('/', controller.formList);
 router.post('/add', controller.formAdd);

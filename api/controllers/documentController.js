@@ -32,7 +32,6 @@ module.exports.documentAdd = [checkAuth, (req, res, next) => {
     });
 
     version.save().then(result => {
-        console.log(result);
         const document = new Document({
             _id: new mongoose.Types.ObjectId(),
             name: req.body.name,

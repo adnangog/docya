@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const controller = require('../controlllers/roleController')
+const controller = require('../controllers/roleController')
 
 router.post('/', controller.roleList);
 router.post('/add', controller.roleAdd);

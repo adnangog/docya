@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const controller = require('../controlllers/cardtemplateController')
+const controller = require('../controllers/cardtemplateController')
 
 router.post('/', controller.cardtemplateList);
 router.post('/add', controller.cardtemplateAdd);
