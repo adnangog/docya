@@ -6,6 +6,7 @@ const authSetSchema = new schema(
     {
         _id: mongoose.Schema.Types.ObjectId,
         name: { type: String, required: true },
+        description: String,
         status: Number,
         rDate: Date
     }

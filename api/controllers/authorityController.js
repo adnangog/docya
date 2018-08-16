@@ -143,6 +143,7 @@ module.exports.authSetAdd = [
     const authSet = new AuthSet({
       _id: new mongoose.Types.ObjectId(),
       name: req.body.name,
+      description: req.body.description,
       rDate: req.body.rDate,
       status: 1
     });
@@ -257,10 +258,11 @@ module.exports.authSetList = [
       .exec()
       .then(docs => {
         let data = {
-          header: [["Id", "Yetki Seti", "Kayıt Tarihi"]],
+          header: [["Id", "Yetki Seti", "Açıklama" ,"Kayıt Tarihi"]],
           data: docs[0].data.map(x => [
             x._id,
             x.name,
+            x.description,
             moment(x.rDate).format("YYYY-MM-DD HH:mm:ss")
           ]),
           count: docs[0].info[0].count
