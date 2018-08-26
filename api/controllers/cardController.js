@@ -42,16 +42,18 @@ module.exports.cardAdd = [checkAuth, (req, res, next) => {
             });
         }).catch(err => {
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
-            console.log(err);
         });
 
     }).catch(err => {
         res.status(500).json({
+            messageType: -1,
+            message: "Bir hata oluştu.",
             error: err
         });
-        console.log(err);
     });
 
 }];
@@ -65,8 +67,9 @@ module.exports.cardUpdate = [checkAuth, (req, res, next) => {
             res.status(200).json(doc);
         })
         .catch(err => {
-            console.log(err);
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });
@@ -84,8 +87,9 @@ module.exports.cardGet = [checkAuth, (req, res, next) => {
             }
         })
         .catch(err => {
-            console.log(err);
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });
@@ -119,7 +123,7 @@ module.exports.cardList = [checkAuth, (req, res, next) => {
         }
     ]).exec()
         .then(docs => {
-            
+
             let data = {
                 "header": [
                     [
@@ -157,8 +161,9 @@ module.exports.cardList = [checkAuth, (req, res, next) => {
             res.status(200).json(data);
         })
         .catch(err => {
-            console.log(err)
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });
@@ -169,11 +174,15 @@ module.exports.cardDelete = [checkAuth, (req, res, next) => {
     Card.remove({ _id: cardId })
         .exec()
         .then(result => {
-            res.status(200).json(result);
+            res.status(200).json({
+                messageType: 1,
+                message: "işlem başarılı."
+            });
         })
         .catch(err => {
-            console.log(err);
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });

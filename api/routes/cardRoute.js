@@ -6,6 +6,6 @@ router.post('/', controller.cardList);
 router.post('/add', controller.cardAdd);
 router.patch('/:cardId', controller.cardUpdate);
 router.get('/:cardId', controller.cardGet);
-router.delete('/:cardId', controller.cardDelete);
+router.get('/delete/:cardId', controller.cardDelete);
 
 module.exports = router;

@@ -134,7 +134,10 @@ module.exports.documentcardDelete = [checkAuth, (req, res, next) => {
     DocumentCard.remove({ _id: documentcardId })
         .exec()
         .then(result => {
-            res.status(200).json(result);
+            res.status(200).json({
+                messageType: 1,
+                message: "işlem başarılı."
+            });
         })
         .catch(err => {
             console.log(err);

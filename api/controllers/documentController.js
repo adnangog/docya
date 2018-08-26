@@ -50,7 +50,6 @@ module.exports.documentAdd = [checkAuth, (req, res, next) => {
         });
 
         document.save().then(result => {
-            console.log(result);
             res.status(201).json({
                 message: "Dokuman kaydedildi.",
                 messageType: 1,
@@ -58,16 +57,18 @@ module.exports.documentAdd = [checkAuth, (req, res, next) => {
             });
         }).catch(err => {
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
-            console.log(err);
         });
 
     }).catch(err => {
         res.status(500).json({
+            messageType: -1,
+            message: "Bir hata oluştu.",
             error: err
         });
-        console.log(err);
     });
 
 }];
@@ -75,7 +76,7 @@ module.exports.documentAdd = [checkAuth, (req, res, next) => {
 module.exports.documentAdds = [checkAuth, (req, res, next) => {
 
     let totalItems = !!req.body.json && JSON.parse(req.body.json).length || 0;
-    
+
 
     totalItems > 0 && JSON.parse(req.body.json).map((x, i) => {
         const version = new Version({
@@ -113,16 +114,18 @@ module.exports.documentAdds = [checkAuth, (req, res, next) => {
                 }
             }).catch(err => {
                 res.status(500).json({
+                    messageType: -1,
+                    message: "Bir hata oluştu.",
                     error: err
                 });
-                console.log(err);
             });
 
         }).catch(err => {
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
-            console.log(err);
         });
     });
 
@@ -137,8 +140,9 @@ module.exports.documentUpdate = [checkAuth, (req, res, next) => {
             res.status(200).json(doc);
         })
         .catch(err => {
-            console.log(err);
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });
@@ -157,8 +161,9 @@ module.exports.documentGet = [checkAuth, (req, res, next) => {
             }
         })
         .catch(err => {
-            console.log(err);
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });
@@ -223,6 +228,8 @@ module.exports.documentList = [checkAuth, (req, res, next) => {
         })
         .catch(err => {
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });
@@ -233,11 +240,15 @@ module.exports.documentDelete = [checkAuth, (req, res, next) => {
     Document.remove({ _id: documentId })
         .exec()
         .then(result => {
-            res.status(200).json(result);
+            res.status(200).json({
+                messageType: 1,
+                message: "işlem başarılı."
+            });
         })
         .catch(err => {
-            console.log(err);
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });
@@ -259,9 +270,10 @@ module.exports.documentTypeAdd = [checkAuth, (req, res, next) => {
         });
     }).catch(err => {
         res.status(500).json({
+            messageType: -1,
+            message: "Bir hata oluştu.",
             error: err
         });
-        console.log(err);
     });
 
 
@@ -275,8 +287,9 @@ module.exports.documentTypeUpdate = [checkAuth, (req, res, next) => {
             res.status(200).json(doc);
         })
         .catch(err => {
-            console.log(err);
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });
@@ -294,8 +307,9 @@ module.exports.documentTypeGet = [checkAuth, (req, res, next) => {
             }
         })
         .catch(err => {
-            console.log(err);
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });
@@ -340,6 +354,8 @@ module.exports.documentTypeList = [checkAuth, (req, res, next) => {
         })
         .catch(err => {
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });
@@ -350,11 +366,15 @@ module.exports.documentTypeDelete = [checkAuth, (req, res, next) => {
     DocumentType.remove({ _id: typeId })
         .exec()
         .then(result => {
-            res.status(200).json(result);
+            res.status(200).json({
+                messageType: 1,
+                message: "işlem başarılı."
+            });
         })
         .catch(err => {
-            console.log(err);
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });

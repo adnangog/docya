@@ -7,6 +7,6 @@ router.post('/add', controller.folderAdd);
 router.patch('/:folderId', controller.folderUpdate);
 router.get('/card/:cardId', controller.foldersByCardId);
 router.get('/:folderId', controller.folderGet);
-router.delete('/:folderId', controller.folderDelete);
+router.get('/delete/:folderId', controller.folderDelete);
 
 module.exports = router;

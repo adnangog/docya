@@ -4,7 +4,7 @@ const CardTemplate = require('../models/cardtemplates');
 const checkAuth = require("../middleware/checkAuth");
 const moment = require("moment");
 
-module.exports.cardtemplateAdd = [checkAuth,(req, res, next) => {
+module.exports.cardtemplateAdd = [checkAuth, (req, res, next) => {
     const cardtemplate = new CardTemplate({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
@@ -12,7 +12,7 @@ module.exports.cardtemplateAdd = [checkAuth,(req, res, next) => {
         user: req.body.user,
         status: 1,
         type: req.body.type,
-        form:req.body.form,
+        form: req.body.form,
         rDate: req.body.rDate
     });
 
@@ -24,14 +24,15 @@ module.exports.cardtemplateAdd = [checkAuth,(req, res, next) => {
         });
     }).catch(err => {
         res.status(500).json({
+            messageType: -1,
+            message: "Bir hata oluştu.",
             error: err
         });
-        console.log(err);
     });
 
 }];
 
-module.exports.cardtemplateUpdate = [checkAuth,(req, res, next) => {
+module.exports.cardtemplateUpdate = [checkAuth, (req, res, next) => {
     const cardtemplateId = req.params.cardtemplateId;
 
     CardTemplate.update({ _id: cardtemplateId }, { $set: req.body })
@@ -40,14 +41,15 @@ module.exports.cardtemplateUpdate = [checkAuth,(req, res, next) => {
             res.status(200).json(doc);
         })
         .catch(err => {
-            console.log(err);
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });
 }]
 
-module.exports.cardtemplateGet = [checkAuth,(req, res, next) => {
+module.exports.cardtemplateGet = [checkAuth, (req, res, next) => {
     const cardtemplateId = req.params.cardtemplateId;
     CardTemplate.findById(cardtemplateId)
         .populate('form', 'fields')
@@ -60,14 +62,15 @@ module.exports.cardtemplateGet = [checkAuth,(req, res, next) => {
             }
         })
         .catch(err => {
-            console.log(err);
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });
 }]
 
-module.exports.cardtemplateList = [checkAuth,(req, res, next) => {
+module.exports.cardtemplateList = [checkAuth, (req, res, next) => {
     let pageOptions = {
         page: req.body.page || 0,
         limit: req.body.limit || 2
@@ -103,27 +106,33 @@ module.exports.cardtemplateList = [checkAuth,(req, res, next) => {
                     x.status === 1 ? "Aktif" : "Pasif",
                     moment(x.rDate).format("YYYY-MM-DD HH:mm:ss")
                 ]),
-                "count":docs[0].info[0].count
+                "count": docs[0].info[0].count
             };
             res.status(200).json(data);
         })
         .catch(err => {
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });
 }]
 
-module.exports.cardtemplateDelete = [checkAuth,(req, res, next) => {
+module.exports.cardtemplateDelete = [checkAuth, (req, res, next) => {
     const cardtemplateId = req.params.cardtemplateId;
     CardTemplate.remove({ _id: cardtemplateId })
         .exec()
         .then(result => {
-            res.status(200).json(result);
+            res.status(200).json({
+                messageType: 1,
+                message: "işlem başarılı."
+            });
         })
         .catch(err => {
-            console.log(err);
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });

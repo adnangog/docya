@@ -31,8 +31,9 @@ module.exports.folderAdd = [
                         });
                     })
                     .catch(err => {
-                        console.log(err);
                         res.status(500).json({
+                            messageType: -1,
+                            message: "Bir hata oluştu.",
                             error: err
                         });
                     });
@@ -79,9 +80,10 @@ module.exports.folderAdd = [
             })
             .catch(err => {
                 res.status(500).json({
+                    messageType: -1,
+                    message: "Bir hata oluştu.",
                     error: err
                 });
-                console.log(err);
             });
     }
 ];
@@ -96,8 +98,9 @@ module.exports.folderUpdate = [
                 res.status(200).json(doc);
             })
             .catch(err => {
-                console.log(err);
                 res.status(500).json({
+                    messageType: -1,
+                    message: "Bir hata oluştu.",
                     error: err
                 });
             });
@@ -124,22 +127,68 @@ module.exports.foldersByCardId = [
                     foreignField: "folder",
                     as: "documents"
                 }
-            }
+            }, {
+                $unwind: {
+                    path: "$documents",
+                    preserveNullAndEmptyArrays: true
+                }
+            }, {
+                $lookup: {
+                    from: "versions",
+                    localField: "documents.version",
+                    foreignField: "_id",
+                    as: "documents.versions"
+                }
+            }, {
+                $group: {
+                    _id: "$_id",
+                    name: {
+                        $first: "$name"
+                    },
+                    childs: {
+                        $first: "$childs"
+                    },
+                    rDate: {
+                        $first: "$rDate"
+                    },
+                    documents: {
+                        $push: "$documents"
+                    }
+                }
+            }, {
+                $project: {
+                    _id: 1,
+                    name: 1,
+                    childs: 1,
+                    rDate: 1,
+                    documents: {
+                        $filter: {
+                            input: "$documents",
+                            as: "a",
+                            cond: {
+                                $ifNull: ["$$a._id", false]
+                            }
+                        }
+                    }
+                }
+            },
+            { $sort: { "rDate": 1 } }
         ])
             .exec()
             .then(doc => {
+                console.log(JSON.stringify(doc, null, 4))
                 let getir = (id) => {
                     let x = doc.filter((item) => { return item._id.toString() == id.toString() })[0];
                     if (x.childs.length > 0) {
                         if (x.documents.length > 0) {
-                            return { id: x._id, name: x.name, type: "folder", childs: x.childs.map(y => getir(y)), documents: x.documents.map(y => { return { id: y._id, name: y.name, type: "document" } }) }
+                            return { id: x._id, name: x.name, type: "folder", childs: x.childs.map(y => getir(y)), documents: x.documents.map(y => { return { id: y._id, name: y.name, type: "document", file: y.versions.length > 0 ? y.versions[0].file : null } }) }
                         } else {
                             return { id: x._id, name: x.name, type: "folder", childs: x.childs.map(y => getir(y)) }
                         }
                     }
                     else {
                         if (x.documents.length > 0) {
-                            return { id: x._id, name: x.name, type: "folder", documents: x.documents.map(y => { return { id: y._id, name: y.name, type: "document" } }) }
+                            return { id: x._id, name: x.name, type: "folder", documents: x.documents.map(y => { return { id: y._id, name: y.name, type: "document", file: y.versions.length > 0 ? y.versions[0].file : null } }) }
                         } else {
                             return { id: x._id, name: x.name, type: "folder" }
                         }
@@ -155,8 +204,9 @@ module.exports.foldersByCardId = [
                 }
             })
             .catch(err => {
-                console.log(err);
                 res.status(500).json({
+                    messageType: -1,
+                    message: "Bir hata oluştu.",
                     error: err
                 });
             });
@@ -181,8 +231,9 @@ module.exports.folderGet = [
                 }
             })
             .catch(err => {
-                console.log(err);
                 res.status(500).json({
+                    messageType: -1,
+                    message: "Bir hata oluştu.",
                     error: err
                 });
             });
@@ -264,6 +315,8 @@ module.exports.folderList = [
             })
             .catch(err => {
                 res.status(500).json({
+                    messageType: -1,
+                    message: "Bir hata oluştu.",
                     error: err
                 });
             });
@@ -277,12 +330,15 @@ module.exports.folderDelete = [
         Folder.remove({ _id: folderId })
             .exec()
             .then(result => {
-                console.log(result);
-                res.status(200).json(result);
+                res.status(200).json({
+                    messageType: 1,
+                    message: "işlem başarılı."
+                });
             })
             .catch(err => {
-                console.log(err);
                 res.status(500).json({
+                    messageType: -1,
+                    message: "Bir hata oluştu.",
                     error: err
                 });
             });

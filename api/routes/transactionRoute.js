@@ -6,6 +6,6 @@ router.post('/', controller.transactionList);
 router.post('/add', controller.transactionAdd);
 router.patch('/:transactionId', controller.transactionUpdate);
 router.get('/:transactionId', controller.transactionGet);
-router.delete('/:transactionId', controller.transactionDelete);
+router.get('/delete/:transactionId', controller.transactionDelete);
 
 module.exports = router;

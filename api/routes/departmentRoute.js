@@ -6,6 +6,6 @@ router.post('/',controller.departmentList);
 router.post('/add', controller.departmentAdd);
 router.patch('/:departmentId', controller.departmentUpdate);
 router.get('/:departmentId', controller.departmentGet);
-router.delete('/:departmentId', controller.departmentDelete);
+router.get('/delete/:departmentId', controller.departmentDelete);
 
 module.exports = router;

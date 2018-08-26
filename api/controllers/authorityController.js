@@ -26,6 +26,8 @@ module.exports.authorityAdd = [
       })
       .catch(err => {
         res.status(500).json({
+          messageType: -1,
+          message: "Bir hata oluştu.",
           error: err
         });
         console.log(err);
@@ -45,6 +47,8 @@ module.exports.authorityUpdate = [
       .catch(err => {
         console.log(err);
         res.status(500).json({
+          messageType: -1,
+          message: "Bir hata oluştu.",
           error: err
         });
       });
@@ -72,6 +76,8 @@ module.exports.authorityGet = [
       .catch(err => {
         console.log(err);
         res.status(500).json({
+          messageType: -1,
+          message: "Bir hata oluştu.",
           error: err
         });
       });
@@ -113,6 +119,8 @@ module.exports.authorityList = [
       })
       .catch(err => {
         res.status(500).json({
+          messageType: -1,
+          message: "Bir hata oluştu.",
           error: err
         });
       });
@@ -126,11 +134,16 @@ module.exports.authorityDelete = [
     Authority.remove({ _id: authorityId })
       .exec()
       .then(result => {
-        res.status(200).json(result);
+        res.status(200).json({
+          messageType: 1,
+          message: "işlem başarılı."
+        });
       })
       .catch(err => {
         console.log(err);
         res.status(500).json({
+          messageType: -1,
+          message: "Bir hata oluştu.",
           error: err
         });
       });
@@ -175,6 +188,8 @@ module.exports.authSetAdd = [
               })
               .catch(err => {
                 res.status(500).json({
+                  messageType: -1,
+                  message: "Bir hata oluştu.",
                   error: err
                 });
                 console.log(err);
@@ -183,6 +198,8 @@ module.exports.authSetAdd = [
       })
       .catch(err => {
         res.status(500).json({
+          messageType: -1,
+          message: "Bir hata oluştu.",
           error: err
         });
         console.log(err);
@@ -202,6 +219,8 @@ module.exports.authSetUpdate = [
       .catch(err => {
         console.log(err);
         res.status(500).json({
+          messageType: -1,
+          message: "Bir hata oluştu.",
           error: err
         });
       });
@@ -229,6 +248,8 @@ module.exports.authSetGet = [
       .catch(err => {
         console.log(err);
         res.status(500).json({
+          messageType: -1,
+          message: "Bir hata oluştu.",
           error: err
         });
       });
@@ -258,7 +279,7 @@ module.exports.authSetList = [
       .exec()
       .then(docs => {
         let data = {
-          header: [["Id", "Yetki Seti", "Açıklama" ,"Kayıt Tarihi"]],
+          header: [["Id", "Yetki Seti", "Açıklama", "Kayıt Tarihi"]],
           data: docs[0].data.map(x => [
             x._id,
             x.name,
@@ -271,6 +292,8 @@ module.exports.authSetList = [
       })
       .catch(err => {
         res.status(500).json({
+          messageType: -1,
+          message: "Bir hata oluştu.",
           error: err
         });
       });
@@ -284,11 +307,16 @@ module.exports.authSetDelete = [
     AuthSet.remove({ _id: authSetId })
       .exec()
       .then(result => {
-        res.status(200).json(result);
+        res.status(200).json({
+          messageType: 1,
+          message: "işlem başarılı."
+        });
       })
       .catch(err => {
         console.log(err);
         res.status(500).json({
+          messageType: -1,
+          message: "Bir hata oluştu.",
           error: err
         });
       });

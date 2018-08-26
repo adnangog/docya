@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const documentRoute = require('./api/routes/documentRoute');
+const noteRoute = require('./api/routes/noteRoute');
 const userRoute = require('./api/routes/userRoute');
 const folderRoute = require('./api/routes/folderRoute');
 const authorityRoute = require('./api/routes/authorityRoute');
@@ -35,6 +36,7 @@ app.use((req, res, next) => {
   });
 
 app.use('/document', documentRoute);
+app.use('/note', noteRoute);
 app.use('/user', userRoute);
 app.use('/folder', folderRoute);
 app.use('/authority', authorityRoute);

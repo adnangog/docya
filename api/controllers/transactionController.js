@@ -4,7 +4,7 @@ const Transaction = require('../models/transactions');
 const checkAuth = require("../middleware/checkAuth");
 const moment = require("moment");
 
-module.exports.transactionAdd = [checkAuth,(req, res, next) => {
+module.exports.transactionAdd = [checkAuth, (req, res, next) => {
     const transaction = new Transaction({
         _id: new mongoose.Types.ObjectId(),
         user: req.body.user,
@@ -22,15 +22,16 @@ module.exports.transactionAdd = [checkAuth,(req, res, next) => {
         });
     }).catch(err => {
         res.status(500).json({
+            messageType: -1,
+            message: "Bir hata oluştu.",
             error: err
         });
-        console.log(err);
     });
 
-    
+
 }];
 
-module.exports.transactionUpdate = [checkAuth,(req, res, next) => {
+module.exports.transactionUpdate = [checkAuth, (req, res, next) => {
     const transactionId = req.params.transactionId;
     Transaction.update({ _id: transactionId }, { $set: req.body })
         .exec()
@@ -38,14 +39,15 @@ module.exports.transactionUpdate = [checkAuth,(req, res, next) => {
             res.status(200).json(doc);
         })
         .catch(err => {
-            console.log(err);
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });
 }]
 
-module.exports.transactionGet = [checkAuth,(req, res, next) => {
+module.exports.transactionGet = [checkAuth, (req, res, next) => {
     const transactionId = req.params.transactionId;
     Transaction.findById(transactionId)
         .exec()
@@ -57,14 +59,15 @@ module.exports.transactionGet = [checkAuth,(req, res, next) => {
             }
         })
         .catch(err => {
-            console.log(err);
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });
 }]
 
-module.exports.transactionList = [checkAuth,(req, res, next) => {
+module.exports.transactionList = [checkAuth, (req, res, next) => {
 
     let pageOptions = {
         page: req.body.page || 0,
@@ -103,7 +106,7 @@ module.exports.transactionList = [checkAuth,(req, res, next) => {
                     x.document,
                     moment(x.rDate).format("YYYY-MM-DD HH:mm:ss")
                 ]),
-                "count":docs[0].info[0].count
+                "count": docs[0].info[0].count
             };
             res.status(200).json(data);
         })
@@ -114,16 +117,20 @@ module.exports.transactionList = [checkAuth,(req, res, next) => {
         });
 }]
 
-module.exports.transactionDelete = [checkAuth,(req, res, next) => {
+module.exports.transactionDelete = [checkAuth, (req, res, next) => {
     const transactionId = req.params.transactionId;
     Transaction.remove({ _id: transactionId })
         .exec()
         .then(result => {
-            res.status(200).json(result);
+            res.status(200).json({
+                messageType: 1,
+                message: "işlem başarılı."
+            });
         })
         .catch(err => {
-            console.log(err);
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });

@@ -1,22 +1,26 @@
 const mongoose = require('mongoose');
 const path = require('path');
-const Role = require('../models/roles');
+const Note = require('../models/notes');
 const checkAuth = require("../middleware/checkAuth");
 const moment = require("moment");
 
-module.exports.roleAdd = [checkAuth, (req, res, next) => {
-    const role = new Role({
+module.exports.noteAdd = [checkAuth, (req, res, next) => {
+    const note = new Note({
         _id: new mongoose.Types.ObjectId(),
-        name: req.body.name,
-        authorities: req.body.authorities,
+        note: req.body.note,
+        user: req.body.user,
+        document: req.body.document,
+        folder: req.body.folder,
+        version: req.body.version,
+        status: 1,
         rDate: req.body.rDate
     });
 
-    role.save().then(result => {
+    note.save().then(result => {
         res.status(201).json({
-            message: "Rol kaydedildi.",
+            message: "Not kaydedildi.",
             messageType: 1,
-            role: role
+            note: note
         });
     }).catch(err => {
         res.status(500).json({
@@ -28,10 +32,10 @@ module.exports.roleAdd = [checkAuth, (req, res, next) => {
 
 }];
 
-module.exports.roleUpdate = [checkAuth, (req, res, next) => {
-    const roleId = req.params.roleId;
+module.exports.noteUpdate = [checkAuth, (req, res, next) => {
+    const noteId = req.params.noteId;
 
-    Role.update({ _id: roleId }, { $set: req.body })
+    Note.update({ _id: noteId }, { $set: req.body })
         .exec()
         .then(doc => {
             res.status(200).json(doc);
@@ -45,9 +49,9 @@ module.exports.roleUpdate = [checkAuth, (req, res, next) => {
         });
 }]
 
-module.exports.roleGet = [checkAuth, (req, res, next) => {
-    const roleId = req.params.roleId;
-    Role.findById(roleId)
+module.exports.noteGet = [checkAuth, (req, res, next) => {
+    const noteId = req.params.noteId;
+    Note.findById(noteId)
         .exec()
         .then(doc => {
             if (doc) {
@@ -65,14 +69,20 @@ module.exports.roleGet = [checkAuth, (req, res, next) => {
         });
 }]
 
-module.exports.roleList = [checkAuth, (req, res, next) => {
+module.exports.noteList = [checkAuth, (req, res, next) => {
 
     let pageOptions = {
         page: req.body.page || 0,
         limit: req.body.limit || 2
     }
-    Role.aggregate([
+
+    if (req.body.folder || req.body.document) {
+        query = { $or: [{ "document": new RegExp(req.body.document, 'i') }, { "folder": new RegExp(req.body.folder, 'i') }] };
+    }
+
+    Note.aggregate([
         { $match: {} },
+        { $lookup: { from: 'users', localField: 'user', foreignField: '_id', as: 'user' } },
         {
             $facet: {
                 data: [
@@ -89,13 +99,15 @@ module.exports.roleList = [checkAuth, (req, res, next) => {
                 "header": [
                     [
                         "Id",
-                        "Adı",
+                        "Not",
+                        "Gonderen",
                         "Kayıt Tarihi",
                     ]
                 ],
                 "data": docs[0].data.map((x) => [
                     x._id,
-                    x.name,
+                    x.note,
+                    x.user.length > 0 ? `${x.user[0].fName} ${x.user[0].lName}` : [],
                     moment(x.rDate).format("YYYY-MM-DD HH:mm:ss")
                 ]),
                 "count": docs[0].info[0].count
@@ -111,9 +123,9 @@ module.exports.roleList = [checkAuth, (req, res, next) => {
         });
 }]
 
-module.exports.roleDelete = [checkAuth, (req, res, next) => {
-    const roleId = req.params.roleId;
-    Role.remove({ _id: roleId })
+module.exports.noteDelete = [checkAuth, (req, res, next) => {
+    const noteId = req.params.noteId;
+    Note.remove({ _id: noteId })
         .exec()
         .then(result => {
             res.status(200).json({

@@ -4,7 +4,7 @@ const Tag = require('../models/tags');
 const checkAuth = require("../middleware/checkAuth");
 const moment = require("moment");
 
-module.exports.tagAdd = [checkAuth,(req, res, next) => {
+module.exports.tagAdd = [checkAuth, (req, res, next) => {
     const tag = new Tag({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
@@ -20,15 +20,16 @@ module.exports.tagAdd = [checkAuth,(req, res, next) => {
         });
     }).catch(err => {
         res.status(500).json({
+            messageType: -1,
+            message: "Bir hata oluştu.",
             error: err
         });
-        console.log(err);
     });
 
-    
+
 }];
 
-module.exports.tagUpdate = [checkAuth,(req, res, next) => {
+module.exports.tagUpdate = [checkAuth, (req, res, next) => {
     const tagId = req.params.tagId;
     Tag.update({ _id: tagId }, { $set: req.body })
         .exec()
@@ -36,14 +37,15 @@ module.exports.tagUpdate = [checkAuth,(req, res, next) => {
             res.status(200).json(doc);
         })
         .catch(err => {
-            console.log(err);
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });
 }]
 
-module.exports.tagGet = [checkAuth,(req, res, next) => {
+module.exports.tagGet = [checkAuth, (req, res, next) => {
     const tagId = req.params.tagId;
     Tag.findById(tagId)
         .exec()
@@ -55,14 +57,15 @@ module.exports.tagGet = [checkAuth,(req, res, next) => {
             }
         })
         .catch(err => {
-            console.log(err);
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });
 }]
 
-module.exports.tagList = [checkAuth,(req, res, next) => {
+module.exports.tagList = [checkAuth, (req, res, next) => {
 
     let pageOptions = {
         page: req.body.page || 0,
@@ -95,28 +98,33 @@ module.exports.tagList = [checkAuth,(req, res, next) => {
                     x.name,
                     moment(x.rDate).format("YYYY-MM-DD HH:mm:ss")
                 ]),
-                "count":docs[0].info[0].count
+                "count": docs[0].info[0].count
             };
             res.status(200).json(data);
         })
         .catch(err => {
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });
 }]
 
-module.exports.tagDelete = [checkAuth,(req, res, next) => {
+module.exports.tagDelete = [checkAuth, (req, res, next) => {
     const tagId = req.params.tagId;
     Tag.remove({ _id: tagId })
         .exec()
         .then(result => {
-            console.log(result);
-            res.status(200).json(result);
+            res.status(200).json({
+                messageType: 1,
+                message: "işlem başarılı."
+            });
         })
         .catch(err => {
-            console.log(err);
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });

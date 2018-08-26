@@ -12,9 +12,12 @@ const userSchema = new schema(
         status: Number,
         roles: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Role' }],
         department: { type: mongoose.Schema.Types.ObjectId, ref: 'Department' },
-        authorities: [],
         username: { type: String, required: true, unique: true },
-        password: { type: String, required: true }
+        password: { type: String, required: true },
+        source: String,
+        title:String,
+        position: { type: mongoose.Schema.Types.ObjectId, ref: 'Position' },
+        proxy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     }
 
 );

@@ -19,6 +19,8 @@ module.exports.userAdd = [(req, res, next) => {
                 bcrypt.hash(req.body.password, 10, (err, hash) => {
                     if (err) {
                         return res.status(500).json({
+                            messageType: -1,
+                            message: "Bir hata oluştu.",
                             error: err
                         });
                     } else {
@@ -29,11 +31,14 @@ module.exports.userAdd = [(req, res, next) => {
                             email: req.body.email,
                             rDate: req.body.rDate,
                             status: req.body.status,
-                            roleId: req.body.roleId,
-                            departmentId: req.body.departmentId,
-                            authorities: req.body.authorities,
+                            roles: req.body.roles,
+                            department: req.body.department,
                             username: req.body.username,
-                            password: hash
+                            password: hash,
+                            title: req.body.title,
+                            position: req.body.position,
+                            proxy: req.body.proxy,
+                            source: req.body.source
                         });
 
                         user
@@ -47,10 +52,10 @@ module.exports.userAdd = [(req, res, next) => {
                             })
                             .catch(err => {
                                 res.status(500).json({
-                                    messageType: 0,
+                                    messageType: -1,
+                                    message: "Bir hata oluştu.",
                                     message: err.message
                                 });
-                                console.log(err);
                             });
                     }
                 });
@@ -68,8 +73,9 @@ module.exports.userUpdate = [checkAuth, (req, res, next) => {
             res.status(200).json(doc);
         })
         .catch(err => {
-            console.log(err);
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });
@@ -92,8 +98,9 @@ module.exports.userGet = [checkAuth, (req, res, next) => {
             }
         })
         .catch(err => {
-            console.log(err);
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });
@@ -109,7 +116,7 @@ module.exports.userList = [checkAuth, (req, res, next) => {
         {
             $facet: {
                 data: [
-                    { $sort: { fName : -1}},
+                    { $sort: { fName: -1 } },
                     { $skip: pageOptions.page },
                     { $limit: pageOptions.limit }
                 ],
@@ -138,13 +145,17 @@ module.exports.userList = [checkAuth, (req, res, next) => {
                     x.status == 1 ? "Aktif" : "Pasif",
                     moment(x.rDate).format("YYYY-MM-DD HH:mm:ss")
                 ]),
-                "count":docs[0].info[0].count
+                "count": docs[0].info[0].count
             };
             // res.status(200).json(docs[0]);
             res.status(200).json(data);
         })
         .catch(err => {
-            res.status(500).json({ error: err });
+            res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
+                error: err
+            });
         });
 }];
 
@@ -153,10 +164,15 @@ module.exports.userDelete = [checkAuth, (req, res, next) => {
     User.remove({ _id: userId })
         .exec()
         .then(result => {
-            res.status(200).json(result);
+            res.status(200).json({
+                messageType: 1,
+                message: "işlem başarılı."
+            });
         })
         .catch(err => {
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });
@@ -212,6 +228,8 @@ module.exports.userLogin = (req, res, next) => {
         })
         .catch(err => {
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });

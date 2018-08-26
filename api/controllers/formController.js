@@ -4,13 +4,13 @@ const Form = require('../models/forms');
 const checkAuth = require("../middleware/checkAuth");
 const moment = require("moment");
 
-module.exports.formAdd = [checkAuth,(req, res, next) => {
+module.exports.formAdd = [checkAuth, (req, res, next) => {
     const form = new Form({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
         fields: req.body.fields,
         user: req.body.user,
-        status:1,
+        status: 1,
         rDate: req.body.rDate
     });
 
@@ -22,15 +22,16 @@ module.exports.formAdd = [checkAuth,(req, res, next) => {
         });
     }).catch(err => {
         res.status(500).json({
+            messageType: -1,
+            message: "Bir hata oluştu.",
             error: err
         });
-        console.log(err);
     });
 
-    
+
 }];
 
-module.exports.formUpdate = [checkAuth,(req, res, next) => {
+module.exports.formUpdate = [checkAuth, (req, res, next) => {
     const formId = req.params.formId;
     Form.update({ _id: formId }, { $set: req.body })
         .exec()
@@ -38,14 +39,15 @@ module.exports.formUpdate = [checkAuth,(req, res, next) => {
             res.status(200).json(doc);
         })
         .catch(err => {
-            console.log(err);
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });
 }]
 
-module.exports.formGet = [checkAuth,(req, res, next) => {
+module.exports.formGet = [checkAuth, (req, res, next) => {
     const formId = req.params.formId;
     Form.findById(formId)
         .exec()
@@ -57,14 +59,15 @@ module.exports.formGet = [checkAuth,(req, res, next) => {
             }
         })
         .catch(err => {
-            console.log(err);
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });
 }]
 
-module.exports.formList = [checkAuth,(req, res, next) => {
+module.exports.formList = [checkAuth, (req, res, next) => {
 
     let pageOptions = {
         page: req.body.page || 0,
@@ -97,27 +100,33 @@ module.exports.formList = [checkAuth,(req, res, next) => {
                     x.name,
                     moment(x.rDate).format("YYYY-MM-DD HH:mm:ss")
                 ]),
-                "count":docs[0].info[0].count
+                "count": docs[0].info[0].count
             };
             res.status(200).json(data);
         })
         .catch(err => {
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });
 }]
 
-module.exports.formDelete = [checkAuth,(req, res, next) => {
+module.exports.formDelete = [checkAuth, (req, res, next) => {
     const formId = req.params.formId;
     Form.remove({ _id: formId })
         .exec()
         .then(result => {
-            res.status(200).json(result);
+            res.status(200).json({
+                messageType: 1,
+                message: "işlem başarılı."
+            });
         })
         .catch(err => {
-            console.log(err);
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });

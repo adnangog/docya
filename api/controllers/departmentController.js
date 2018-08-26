@@ -5,10 +5,10 @@ const checkAuth = require("../middleware/checkAuth");
 const moment = require("moment");
 
 const storage = multer.diskStorage({
-    destination: function(req, file, cb){
+    destination: function (req, file, cb) {
         cb(null, './uploads/');
     },
-    filename: function(req, file, cb){
+    filename: function (req, file, cb) {
         cb(null, new Date().toISOString() + file.originalname);
     }
 });
@@ -17,7 +17,7 @@ const upload = multer({ storage: storage });
 
 
 
-module.exports.departmentAdd = [checkAuth,upload.single('departmentImage'), (req, res, next) => {
+module.exports.departmentAdd = [checkAuth, upload.single('departmentImage'), (req, res, next) => {
     const department = new Department({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
@@ -32,15 +32,16 @@ module.exports.departmentAdd = [checkAuth,upload.single('departmentImage'), (req
         });
     }).catch(err => {
         res.status(500).json({
+            messageType: -1,
+            message: "Bir hata oluştu.",
             error: err
         });
-        console.log(err);
     });
 
-    
+
 }];
 
-module.exports.departmentUpdate = [checkAuth,(req, res, next) => {
+module.exports.departmentUpdate = [checkAuth, (req, res, next) => {
     const departmentId = req.params.departmentId;
     Department.update({ _id: departmentId }, { $set: req.body })
         .exec()
@@ -48,14 +49,15 @@ module.exports.departmentUpdate = [checkAuth,(req, res, next) => {
             res.status(200).json(doc);
         })
         .catch(err => {
-            console.log(err);
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });
 }]
 
-module.exports.departmentGet = [checkAuth,(req, res, next) => {
+module.exports.departmentGet = [checkAuth, (req, res, next) => {
     const departmentId = req.params.departmentId;
     Department.findById(departmentId)
         .exec()
@@ -67,14 +69,15 @@ module.exports.departmentGet = [checkAuth,(req, res, next) => {
             }
         })
         .catch(err => {
-            console.log(err);
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });
 }]
 
-module.exports.departmentList = [checkAuth,(req, res, next) => {
+module.exports.departmentList = [checkAuth, (req, res, next) => {
 
     let pageOptions = {
         page: req.body.page || 0,
@@ -107,27 +110,33 @@ module.exports.departmentList = [checkAuth,(req, res, next) => {
                     x.name,
                     moment(x.rDate).format("YYYY-MM-DD HH:mm:ss")
                 ]),
-                "count":docs[0].info[0].count
+                "count": docs[0].info[0].count
             };
             res.status(200).json(data);
         })
         .catch(err => {
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });
 }]
 
-module.exports.departmentDelete = [checkAuth,(req, res, next) => {
+module.exports.departmentDelete = [checkAuth, (req, res, next) => {
     const departmentId = req.params.departmentId;
     Department.remove({ _id: departmentId })
         .exec()
         .then(result => {
-            res.status(200).json(result);
+            res.status(200).json({
+                messageType: 1,
+                message: "işlem başarılı."
+            });
         })
         .catch(err => {
-            console.log(err);
             res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
                 error: err
             });
         });
