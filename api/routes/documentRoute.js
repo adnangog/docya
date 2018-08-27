@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/documentController')
 
+router.get('/version/:documentId', controller.versionsByDocumentId);
 router.post('/type', controller.documentTypeList);
 router.post('/type/add', controller.documentTypeAdd);
 router.patch('/type/:typeId', controller.documentTypeUpdate);

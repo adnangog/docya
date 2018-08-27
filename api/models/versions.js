@@ -5,6 +5,7 @@ const schema = mongoose.Schema;
 const versionSchema = new schema(
     {
         _id: mongoose.Schema.Types.ObjectId,
+        document: { type: mongoose.Schema.Types.ObjectId, ref: 'Document'},
         code: { type: String, required: true },
         date: { type: Date, required: true },
         name: String,

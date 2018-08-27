@@ -106,12 +106,24 @@ module.exports.documentAdds = [checkAuth, (req, res, next) => {
             });
 
             document.save().then(result => {
-                if (totalItems - i === 1) {
-                    res.status(201).json({
-                        message: "Dokuman(lar) kaydedildi.",
-                        messageType: 1
+                Version.update({ _id: mongoose.Types.ObjectId(document.version) }, { $set: { document: mongoose.Types.ObjectId(document._id) } })
+                    .exec()
+                    .then(doc => {
+                        if (totalItems - i === 1) {
+                            res.status(201).json({
+                                message: "Dokuman(lar) kaydedildi.",
+                                messageType: 1
+                            });
+                        }
+                    })
+                    .catch(err => {
+                        res.status(500).json({
+                            messageType: -1,
+                            message: "Bir hata oluştu.",
+                            error: err
+                        });
                     });
-                }
+
             }).catch(err => {
                 res.status(500).json({
                     messageType: -1,
@@ -130,7 +142,6 @@ module.exports.documentAdds = [checkAuth, (req, res, next) => {
     });
 
 }];
-
 
 module.exports.documentUpdate = [checkAuth, (req, res, next) => {
     const documentId = req.params.documentId;
@@ -240,10 +251,20 @@ module.exports.documentDelete = [checkAuth, (req, res, next) => {
     Document.remove({ _id: documentId })
         .exec()
         .then(result => {
-            res.status(200).json({
-                messageType: 1,
-                message: "işlem başarılı."
-            });
+            Version.remove({ document: mongoose.Types.ObjectId(documentId) }).exec()
+                .then(result => {
+                    res.status(200).json({
+                        messageType: 1,
+                        message: "işlem başarılı."
+                    });
+                })
+                .catch(err => {
+                    res.status(500).json({
+                        messageType: -1,
+                        message: "Bir hata oluştu.",
+                        error: err
+                    });
+                });
         })
         .catch(err => {
             res.status(500).json({
@@ -379,4 +400,24 @@ module.exports.documentTypeDelete = [checkAuth, (req, res, next) => {
             });
         });
 
+}]
+
+module.exports.versionsByDocumentId = [checkAuth, (req, res, next) => {
+    const documentId = req.params.documentId;
+    Version.find({ "document": mongoose.Types.ObjectId(documentId) })
+        .exec()
+        .then(doc => {
+            res.status(200).json({
+                messageType: 1,
+                message: "işlem başarılı",
+                data: doc
+            });
+        })
+        .catch(err => {
+            res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
+                error: err
+            });
+        });
 }]

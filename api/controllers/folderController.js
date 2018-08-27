@@ -176,7 +176,6 @@ module.exports.foldersByCardId = [
         ])
             .exec()
             .then(doc => {
-                console.log(JSON.stringify(doc, null, 4))
                 let getir = (id) => {
                     let x = doc.filter((item) => { return item._id.toString() == id.toString() })[0];
                     if (x.childs.length > 0) {
