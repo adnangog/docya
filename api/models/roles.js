@@ -6,8 +6,7 @@ const roleSchema = new schema(
     {
         _id: mongoose.Schema.Types.ObjectId,
         name: { type: String, required: true },
-        rDate: Date,
-        authorities: []
+        rDate: Date
     }
 
 );

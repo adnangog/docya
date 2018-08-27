@@ -30,7 +30,6 @@ module.exports.authorityAdd = [
           message: "Bir hata oluştu.",
           error: err
         });
-        console.log(err);
       });
   }
 ];
@@ -45,7 +44,6 @@ module.exports.authorityUpdate = [
         res.status(200).json(doc);
       })
       .catch(err => {
-        console.log(err);
         res.status(500).json({
           messageType: -1,
           message: "Bir hata oluştu.",
@@ -74,7 +72,6 @@ module.exports.authorityGet = [
         }
       })
       .catch(err => {
-        console.log(err);
         res.status(500).json({
           messageType: -1,
           message: "Bir hata oluştu.",
@@ -140,7 +137,6 @@ module.exports.authorityDelete = [
         });
       })
       .catch(err => {
-        console.log(err);
         res.status(500).json({
           messageType: -1,
           message: "Bir hata oluştu.",
@@ -170,9 +166,10 @@ module.exports.authSetAdd = [
           JSON.parse(req.body.json).map((x, i) => {
             const authSetItem = new AuthSetItem({
               _id: new mongoose.Types.ObjectId(),
-              autSeth: authSet._id,
+              authSet: authSet._id,
               type: x.type, //1- user 2- role
               ownerId: x.ownerId, // role or user _id
+              name: x.name,
               authorities: x.authorities,
               status: 1,
               rDate: req.body.rDate
@@ -192,7 +189,6 @@ module.exports.authSetAdd = [
                   message: "Bir hata oluştu.",
                   error: err
                 });
-                console.log(err);
               });
           });
       })
@@ -202,7 +198,6 @@ module.exports.authSetAdd = [
           message: "Bir hata oluştu.",
           error: err
         });
-        console.log(err);
       });
   }
 ];
@@ -217,7 +212,6 @@ module.exports.authSetUpdate = [
         res.status(200).json(doc);
       })
       .catch(err => {
-        console.log(err);
         res.status(500).json({
           messageType: -1,
           message: "Bir hata oluştu.",
@@ -235,7 +229,23 @@ module.exports.authSetGet = [
       .exec()
       .then(doc => {
         if (doc) {
-          res.status(200).json(doc);
+          AuthSetItem.find({ "authSet": authSetId }).exec()
+            .then(items => {
+              res.status(200).json({
+                "_id": doc._id,
+                "name": doc.name,
+                "description": doc.description,
+                "json": items.map(x => {
+                  return {
+                    type: x.type,
+                    name: x.name,
+                    ownerId: x.ownerId,
+                    authorities: x.authorities
+                  }
+                })
+              });
+            });
+
         } else {
           res
             .status(404)
@@ -246,7 +256,6 @@ module.exports.authSetGet = [
         }
       })
       .catch(err => {
-        console.log(err);
         res.status(500).json({
           messageType: -1,
           message: "Bir hata oluştu.",
@@ -313,7 +322,6 @@ module.exports.authSetDelete = [
         });
       })
       .catch(err => {
-        console.log(err);
         res.status(500).json({
           messageType: -1,
           message: "Bir hata oluştu.",

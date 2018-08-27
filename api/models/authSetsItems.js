@@ -5,7 +5,8 @@ const schema = mongoose.Schema;
 const authSetItemSchema = new schema(
     {
         _id: mongoose.Schema.Types.ObjectId,
-        autSeth: { type: mongoose.Schema.Types.ObjectId, ref: 'AuthSet' },
+        authSet: { type: mongoose.Schema.Types.ObjectId, ref: 'AuthSet' },
+        name: String,
         type: Number, //1- user 2- role
         ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // role or user _id
         authorities: [],
