@@ -8,6 +8,7 @@ module.exports.folderAdd = [
     (req, res, next) => {
         const folder = new Folder({
             _id: new mongoose.Types.ObjectId(),
+            authSet: req.body.authSet,
             name: req.body.name,
             rDate: req.body.rDate,
             description: req.body.description,

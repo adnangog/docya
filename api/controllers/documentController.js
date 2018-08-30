@@ -36,8 +36,6 @@ module.exports.documentAdd = [checkAuth, (req, res, next) => {
             _id: new mongoose.Types.ObjectId(),
             name: req.body.name,
             rDate: req.body.rDate,
-            publishFirstDate: req.body.publishFirstDate,
-            publishEndDate: req.body.publishEndDate,
             department: req.body.department,
             user: req.body.user,
             folder: req.body.folder,
