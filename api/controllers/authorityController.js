@@ -159,8 +159,7 @@ module.exports.authSetAdd = [
 
     authSet.save()
       .then(result => {
-        let totalItems =
-          (!!req.body.json && JSON.parse(req.body.json).length) || 0;
+        let totalItems = (!!req.body.json && JSON.parse(req.body.json).length) || 0;
 
         totalItems > 0 &&
           JSON.parse(req.body.json).map((x, i) => {
@@ -206,10 +205,57 @@ module.exports.authSetUpdate = [
   checkAuth,
   (req, res, next) => {
     const authSetId = req.params.authSetId;
-    AuthSet.update({ _id: authSetId }, { $set: req.body })
+    AuthSet.update({ _id: authSetId }, {
+      $set: {
+        name: req.body.name,
+        description: req.body.description
+      }
+    })
       .exec()
       .then(doc => {
-        res.status(200).json(doc);
+
+        AuthSetItem.remove({ authSet: authSetId })
+          .exec()
+          .then(result => {
+            let totalItems = (!!req.body.json && JSON.parse(req.body.json).length) || 0;
+
+            totalItems > 0 &&
+              JSON.parse(req.body.json).map((x, i) => {
+                const authSetItem = new AuthSetItem({
+                  _id: new mongoose.Types.ObjectId(),
+                  authSet: authSetId,
+                  type: x.type, //1- user 2- role
+                  ownerId: x.ownerId, // role or user _id
+                  name: x.name,
+                  authorities: x.authorities,
+                  status: 1,
+                  rDate: req.body.rDate
+                });
+
+                authSetItem.save()
+                  .then(result2 => {
+                    res.status(201).json({
+                      message: "Yetki Seti güncellendi.",
+                      messageType: 1,
+                      authSet: authSet
+                    });
+                  })
+                  .catch(err => {
+                    res.status(500).json({
+                      messageType: -1,
+                      message: "Bir hata oluştu.",
+                      error: err
+                    });
+                  });
+              });
+          })
+          .catch(err => {
+            res.status(500).json({
+              messageType: -1,
+              message: "Bir hata oluştu.",
+              error: err
+            });
+          });
       })
       .catch(err => {
         res.status(500).json({
