@@ -160,7 +160,7 @@ module.exports.documentUpdate = [checkAuth, (req, res, next) => {
 module.exports.documentGet = [checkAuth, (req, res, next) => {
     const documentId = req.params.documentId;
     Document.findById(documentId)
-        .populate('type', 'name')
+        .populate('version')
         .exec()
         .then(doc => {
             if (doc) {

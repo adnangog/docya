@@ -181,14 +181,14 @@ module.exports.foldersByCardId = [
                     let x = doc.filter((item) => { return item._id.toString() == id.toString() })[0];
                     if (x.childs.length > 0) {
                         if (x.documents.length > 0) {
-                            return { id: x._id, name: x.name, type: "folder", childs: x.childs.map(y => getir(y)), documents: x.documents.map(y => { return { id: y._id, name: y.name, type: "document", file: y.versions.length > 0 ? y.versions[0].file : null } }) }
+                            return { id: x._id, name: x.name, type: "folder", childs: x.childs.map(y => getir(y)), documents: x.documents.map(y => { return { id: y._id, name: y.name, type: "document", file: y.versions.length > 0 ? y.versions[0].file : null, fileType: y.versions.length > 0 ? y.versions[0].fileType : null } }) }
                         } else {
                             return { id: x._id, name: x.name, type: "folder", childs: x.childs.map(y => getir(y)) }
                         }
                     }
                     else {
                         if (x.documents.length > 0) {
-                            return { id: x._id, name: x.name, type: "folder", documents: x.documents.map(y => { return { id: y._id, name: y.name, type: "document", file: y.versions.length > 0 ? y.versions[0].file : null } }) }
+                            return { id: x._id, name: x.name, type: "folder", documents: x.documents.map(y => { return { id: y._id, name: y.name, type: "document", file: y.versions.length > 0 ? y.versions[0].file : null, fileType: y.versions.length > 0 ? y.versions[0].fileType : null } }) }
                         } else {
                             return { id: x._id, name: x.name, type: "folder" }
                         }
