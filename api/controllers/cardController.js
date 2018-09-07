@@ -24,6 +24,7 @@ module.exports.cardAdd = [checkAuth, (req, res, next) => {
         const folder = new Folder({
             _id: new mongoose.Types.ObjectId(),
             name: "Dökümanlar",
+            authSet: req.body.authSet,
             rDate: req.body.rDate,
             description: null,
             parent: null,
@@ -77,11 +78,68 @@ module.exports.cardUpdate = [checkAuth, (req, res, next) => {
 
 module.exports.cardGet = [checkAuth, (req, res, next) => {
     const cardId = req.params.cardId;
-    Card.findById(cardId)
+    Card.aggregate([
+        {  $match: {
+            "_id": {
+                $eq: mongoose.Types.ObjectId(cardId)
+            }
+        } },
+        {
+            $lookup: {
+                from: "authsetitems",
+                localField: "authSet",
+                foreignField: "authSet",
+                as: "authsetitems"
+            }
+        }, {
+            $unwind: {
+                path: "$authsetitems",
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $match: {
+                $or: [{
+                    $and: [
+                        { "authsetitems": { $exists: true } }, { "authsetitems.type": { $eq: 1 } }, { "authsetitems.ownerId": { $eq: mongoose.Types.ObjectId(req.body.userId)} }
+                    ]
+                },
+                {
+                    $and: [
+                        { "authsetitems": { $exists: true } }, { "authsetitems.type": { $eq: 2 } }, { "authsetitems.ownerId": { $in: [mongoose.Types.ObjectId(req.body.userId)] } }
+                    ]
+                }
+                ]
+            }
+        },
+        {
+            $group: {
+                _id: "$_id",
+                name: {
+                    $first: "$name"
+                },
+                fields: {
+                    $first: "$fields"
+                },
+                rDate: {
+                    $first: "$rDate"
+                },
+                status: {
+                    $first: "$status"
+                },
+                type: {
+                    $first: "$type"
+                },
+                authsetitems: {
+                    $push: "$authsetitems"
+                }
+            }
+        }
+    ])
         .exec()
         .then(doc => {
-            if (doc) {
-                res.status(200).json(doc);
+            if (doc.length>0) {
+                res.status(200).json(doc[0]);
             } else {
                 res.status(404).json({ message: "Bu id'ye ait bir kayit bulunamadi.", messageType: 0 });
             }
@@ -112,11 +170,86 @@ module.exports.cardList = [checkAuth, (req, res, next) => {
         //  { $match: { $or: [ { "fields.adiniz_soyadiniz": new RegExp(data, 'i') }, { "fields.egitim_durumu": new RegExp(data, 'i') } ] } },
         { $match: query },
         {
+            $match: {
+                "authSet": {
+                    $ne: null
+                }
+            }
+        },
+        {
+            $lookup: {
+                from: "authsets",
+                localField: "authSet",
+                foreignField: "_id",
+                as: "authsets"
+            }
+        }, {
+            $unwind: {
+                path: "$authsets",
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $lookup: {
+                from: "authsetitems",
+                localField: "authsets._id",
+                foreignField: "authSet",
+                as: "authsetitems"
+            }
+        }, {
+            $unwind: {
+                path: "$authsetitems",
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $match: {
+                $or: [{
+                    $and: [
+                        { "authsetitems": { $exists: true } }, { "authsetitems.type": { $eq: 1 } }, { "authsetitems.ownerId": { $eq: mongoose.Types.ObjectId(req.body.userId)} }, { "authsetitems.authorities": { $elemMatch: { $eq: 1 } } } // 1 kartı görme yetkisidir
+                    ]
+                },
+                {
+                    $and: [
+                        { "authsetitems": { $exists: true } }, { "authsetitems.type": { $eq: 2 } }, { "authsetitems.ownerId": { $in: [mongoose.Types.ObjectId(req.body.userId)] } }, { "authsetitems.authorities": { $elemMatch: { $eq: 1 } } }  // 1 kartı görme yetkisidir
+                    ]
+                }
+                ]
+            }
+        },
+        {
+            $group: {
+                _id: "$_id",
+                name: {
+                    $first: "$name"
+                },
+                fields: {
+                    $first: "$fields"
+                },
+                rDate: {
+                    $first: "$rDate"
+                },
+                status: {
+                    $first: "$status"
+                },
+                type: {
+                    $first: "$type"
+                },
+                authsetitems: {
+                    $push: "$authsetitems"
+                }
+            }
+        },
+        {
+            $sort: {
+                "rDate": 1
+            }
+        },
+        {
             $facet: {
                 data: [
-                    //   { $sort: sort },
-                    { $skip: pageOptions.page },
-                    { $limit: pageOptions.limit }
+                    { $skip: 0 },
+                    { $limit: 50 }
                 ],
                 info: [{ $group: { _id: null, count: { $sum: 1 } } }]
             }

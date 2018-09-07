@@ -123,6 +123,19 @@ module.exports.foldersByCardId = [
             { $match: query },
             {
                 $lookup: {
+                    from: "authsetitems",
+                    localField: "authSet",
+                    foreignField: "authSet",
+                    as: "authsetitems"
+                }
+            }, {
+                $unwind: {
+                    path: "$authsetitems",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $lookup: {
                     from: "documents",
                     localField: "_id",
                     foreignField: "folder",
@@ -133,7 +146,16 @@ module.exports.foldersByCardId = [
                     path: "$documents",
                     preserveNullAndEmptyArrays: true
                 }
-            }, {
+            },
+            {
+                $lookup: {
+                    from: "authsetitems",
+                    localField: "authSet",
+                    foreignField: "authSet",
+                    as: "documents.authsetitems"
+                }
+            },
+            {
                 $lookup: {
                     from: "versions",
                     localField: "documents.version",
@@ -152,6 +174,9 @@ module.exports.foldersByCardId = [
                     rDate: {
                         $first: "$rDate"
                     },
+                    authsetitems: {
+                        $push: "$authsetitems"
+                    },
                     documents: {
                         $push: "$documents"
                     }
@@ -162,6 +187,15 @@ module.exports.foldersByCardId = [
                     name: 1,
                     childs: 1,
                     rDate: 1,
+                    authsetitems: {
+                        $filter: {
+                            input: "$authsetitems",
+                            as: "a",
+                            cond: {
+                                $ifNull: ["$$a._id", false]
+                            }
+                        }
+                    },
                     documents: {
                         $filter: {
                             input: "$documents",

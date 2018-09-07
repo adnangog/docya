@@ -176,11 +176,13 @@ module.exports.authSetAdd = [
 
             authSetItem.save()
               .then(result2 => {
-                res.status(201).json({
-                  message: "Yetki Seti kaydedildi.",
-                  messageType: 1,
-                  authSet: authSet
-                });
+                if (i == (totalItems - 1)) {
+                  res.status(201).json({
+                    message: "Yetki Seti kaydedildi.",
+                    messageType: 1,
+                    authSet: result2
+                  });
+                }
               })
               .catch(err => {
                 res.status(500).json({
@@ -234,11 +236,13 @@ module.exports.authSetUpdate = [
 
                 authSetItem.save()
                   .then(result2 => {
-                    res.status(201).json({
-                      message: "Yetki Seti güncellendi.",
-                      messageType: 1,
-                      authSet: authSet
-                    });
+                    if (i == (totalItems - 1)) {
+                      res.status(201).json({
+                        message: "Yetki Seti güncellendi.",
+                        messageType: 1,
+                        authSet: result2
+                      });
+                    }
                   })
                   .catch(err => {
                     res.status(500).json({
