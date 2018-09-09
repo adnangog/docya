@@ -98,7 +98,7 @@ module.exports.documentAdds = [checkAuth, (req, res, next) => {
                 user: req.body.user,
                 folder: req.body.folder,
                 card: req.body.card,
-                authSet: req.body.authSet,
+                authSet: x.authSet,
                 status: req.body.status,
                 version: version._id
             });

@@ -135,6 +135,21 @@ module.exports.foldersByCardId = [
                 }
             },
             {
+                $match: {
+                    $or: [{
+                        $and: [
+                            { "authsetitems": { $exists: true } }, { "authsetitems.type": { $eq: 1 } }, { "authsetitems.ownerId": { $eq: mongoose.Types.ObjectId(req.body.userId)} }, { "authsetitems.authorities": { $elemMatch: { $eq: 20 } } } // 20 klasoru görme yetkisidir
+                        ]
+                    },
+                    {
+                        $and: [
+                            { "authsetitems": { $exists: true } }, { "authsetitems.type": { $eq: 2 } }, { "authsetitems.ownerId": { $in: [mongoose.Types.ObjectId(req.body.userId)] } }, { "authsetitems.authorities": { $elemMatch: { $eq: 20 } } }  // 20 klasoru görme yetkisidir
+                        ]
+                    }
+                    ]
+                }
+            },
+            {
                 $lookup: {
                     from: "documents",
                     localField: "_id",
@@ -211,20 +226,21 @@ module.exports.foldersByCardId = [
         ])
             .exec()
             .then(doc => {
+                console.log(doc);
                 let getir = (id) => {
                     let x = doc.filter((item) => { return item._id.toString() == id.toString() })[0];
                     if (x.childs.length > 0) {
                         if (x.documents.length > 0) {
-                            return { id: x._id, name: x.name, type: "folder", childs: x.childs.map(y => getir(y)), documents: x.documents.map(y => { return { id: y._id, name: y.name, type: "document", file: y.versions.length > 0 ? y.versions[0].file : null, fileType: y.versions.length > 0 ? y.versions[0].fileType : null } }) }
+                            return { id: x._id, name: x.name, type: "folder", authsetitems: x.authsetitems, childs: x.childs.map(y => getir(y)), documents: x.documents.map(y => { return { id: y._id, name: y.name, type: "document", authsetitems: y.authsetitems, file: y.versions.length > 0 ? y.versions[0].file : null, fileType: y.versions.length > 0 ? y.versions[0].fileType : null } }) }
                         } else {
-                            return { id: x._id, name: x.name, type: "folder", childs: x.childs.map(y => getir(y)) }
+                            return { id: x._id, name: x.name, type: "folder", authsetitems: x.authsetitems, childs: x.childs.map(y => getir(y)) }
                         }
                     }
                     else {
                         if (x.documents.length > 0) {
-                            return { id: x._id, name: x.name, type: "folder", documents: x.documents.map(y => { return { id: y._id, name: y.name, type: "document", file: y.versions.length > 0 ? y.versions[0].file : null, fileType: y.versions.length > 0 ? y.versions[0].fileType : null } }) }
+                            return { id: x._id, name: x.name, type: "folder", authsetitems: x.authsetitems, documents: x.documents.map(y => { return { id: y._id, name: y.name, type: "document", authsetitems: y.authsetitems, file: y.versions.length > 0 ? y.versions[0].file : null, fileType: y.versions.length > 0 ? y.versions[0].fileType : null } }) }
                         } else {
-                            return { id: x._id, name: x.name, type: "folder" }
+                            return { id: x._id, name: x.name, type: "folder", authsetitems: x.authsetitems }
                         }
                     }
                 };
