@@ -171,6 +171,27 @@ module.exports.foldersByCardId = [
                 }
             },
             {
+                $unwind: {
+                    path: "$documents.authsetitems",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $match: {
+                    $or: [{
+                        $and: [
+                            { "documents.authsetitems": { $exists: true } }, { "documents.authsetitems.type": { $eq: 1 } }, { "documents.authsetitems.ownerId": { $eq: mongoose.Types.ObjectId(req.body.userId)} }, { "documents.authsetitems.authorities": { $elemMatch: { $eq: 20 } } } // 20 klasoru görme yetkisidir
+                        ]
+                    },
+                    {
+                        $and: [
+                            { "documents.authsetitems": { $exists: true } }, { "documents.authsetitems.type": { $eq: 2 } }, { "documents.authsetitems.ownerId": { $in: [mongoose.Types.ObjectId(req.body.userId)] } }, { "documents.authsetitems.authorities": { $elemMatch: { $eq: 20 } } }  // 20 klasoru görme yetkisidir
+                        ]
+                    }
+                    ]
+                }
+            },
+            {
                 $lookup: {
                     from: "versions",
                     localField: "documents.version",
@@ -226,7 +247,7 @@ module.exports.foldersByCardId = [
         ])
             .exec()
             .then(doc => {
-                console.log(doc);
+                console.log(JSON.stringify(doc,null,4));
                 let getir = (id) => {
                     let x = doc.filter((item) => { return item._id.toString() == id.toString() })[0];
                     if (x.childs.length > 0) {
