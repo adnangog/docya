@@ -76,12 +76,10 @@ module.exports.noteList = [checkAuth, (req, res, next) => {
         limit: req.body.limit || 2
     }
 
-    if (req.body.folder || req.body.document) {
-        query = { $or: [{ "document": new RegExp(req.body.document, 'i') }, { "folder": new RegExp(req.body.folder, 'i') }] };
-    }
+    var query = {  "document":  mongoose.Types.ObjectId(req.body.document) } ;
 
     Note.aggregate([
-        { $match: {} },
+        { $match: query },
         { $lookup: { from: 'users', localField: 'user', foreignField: '_id', as: 'user' } },
         {
             $facet: {
