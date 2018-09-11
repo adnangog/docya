@@ -11,6 +11,7 @@ const cardtemplateRoute = require('./api/routes/cardtemplateRoute');
 const departmentRoute = require('./api/routes/departmentRoute');
 const transactionRoute = require('./api/routes/transactionRoute');
 const tagRoute = require('./api/routes/tagRoute');
+const mailRoute = require('./api/routes/mailRoute');
 const formRoute = require('./api/routes/formRoute');
 
 const app = express();
@@ -45,6 +46,7 @@ app.use('/cardtemplate', cardtemplateRoute);
 app.use('/department', departmentRoute);
 app.use('/transaction', transactionRoute);
 app.use('/tag', tagRoute);
+app.use('/mail', mailRoute);
 app.use('/form', formRoute);
 
 app.listen(8000)
