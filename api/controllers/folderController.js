@@ -247,19 +247,18 @@ module.exports.foldersByCardId = [
         ])
             .exec()
             .then(doc => {
-                console.log(JSON.stringify(doc,null,4));
                 let getir = (id) => {
                     let x = doc.filter((item) => { return item._id.toString() == id.toString() })[0];
                     if (x.childs.length > 0) {
                         if (x.documents.length > 0) {
-                            return { id: x._id, name: x.name, type: "folder", authsetitems: x.authsetitems, childs: x.childs.map(y => getir(y)), documents: x.documents.map(y => { return { id: y._id, name: y.name, type: "document", authsetitems: y.authsetitems, file: y.versions.length > 0 ? y.versions[0].file : null, fileType: y.versions.length > 0 ? y.versions[0].fileType : null } }) }
+                            return { id: x._id, name: x.name, type: "folder", authsetitems: x.authsetitems, childs: x.childs.map(y => getir(y)), documents: x.documents.map(y => { return { id: y._id, name: y.name, type: "document", authsetitems: y.authsetitems, file: y.versions.length > 0 ? y.versions[0].file : null, filename: y.versions.length > 0 ? y.versions[0].filename : null, fileType: y.versions.length > 0 ? y.versions[0].fileType : null } }) }
                         } else {
                             return { id: x._id, name: x.name, type: "folder", authsetitems: x.authsetitems, childs: x.childs.map(y => getir(y)) }
                         }
                     }
                     else {
                         if (x.documents.length > 0) {
-                            return { id: x._id, name: x.name, type: "folder", authsetitems: x.authsetitems, documents: x.documents.map(y => { return { id: y._id, name: y.name, type: "document", authsetitems: y.authsetitems, file: y.versions.length > 0 ? y.versions[0].file : null, fileType: y.versions.length > 0 ? y.versions[0].fileType : null } }) }
+                            return { id: x._id, name: x.name, type: "folder", authsetitems: x.authsetitems, documents: x.documents.map(y => { return { id: y._id, name: y.name, type: "document", authsetitems: y.authsetitems, file: y.versions.length > 0 ? y.versions[0].file : null, filename: y.versions.length > 0 ? y.versions[0].filename : null, fileType: y.versions.length > 0 ? y.versions[0].fileType : null } }) }
                         } else {
                             return { id: x._id, name: x.name, type: "folder", authsetitems: x.authsetitems }
                         }
