@@ -32,7 +32,7 @@ module.exports.userAdd = [
                                 email: req.body.email,
                                 rDate: req.body.rDate,
                                 status: req.body.status,
-                                roles: req.body.roles,
+                                groups: req.body.groups,
                                 department: req.body.department,
                                 username: req.body.username,
                                 password: hash,

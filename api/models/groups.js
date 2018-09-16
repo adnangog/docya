@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const schema = mongoose.Schema;
 
-const roleSchema = new schema(
+const groupSchema = new schema(
     {
         _id: mongoose.Schema.Types.ObjectId,
         name: { type: String, required: true },
@@ -11,6 +11,6 @@ const roleSchema = new schema(
 
 );
 
-const Role = mongoose.model('Role', roleSchema);
+const Group = mongoose.model('Group', groupSchema);
 
-module.exports = Role;
+module.exports = Group;

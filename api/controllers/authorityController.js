@@ -166,8 +166,8 @@ module.exports.authSetAdd = [
             const authSetItem = new AuthSetItem({
               _id: new mongoose.Types.ObjectId(),
               authSet: authSet._id,
-              type: x.type, //1- user 2- role
-              ownerId: x.ownerId, // role or user _id
+              type: x.type, //1- user 2- group
+              ownerId: x.ownerId, // group or user _id
               name: x.name,
               authorities: x.authorities,
               status: 1,
@@ -226,8 +226,8 @@ module.exports.authSetUpdate = [
                 const authSetItem = new AuthSetItem({
                   _id: new mongoose.Types.ObjectId(),
                   authSet: authSetId,
-                  type: x.type, //1- user 2- role
-                  ownerId: x.ownerId, // role or user _id
+                  type: x.type, //1- user 2- group
+                  ownerId: x.ownerId, // group or user _id
                   name: x.name,
                   authorities: x.authorities,
                   status: 1,

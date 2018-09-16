@@ -1,21 +1,21 @@
 const mongoose = require('mongoose');
 const path = require('path');
-const Role = require('../models/roles');
+const Group = require('../models/groups');
 const checkAuth = require("../middleware/checkAuth");
 const moment = require("moment");
 
-module.exports.roleAdd = [checkAuth, (req, res, next) => {
-    const role = new Role({
+module.exports.groupAdd = [checkAuth, (req, res, next) => {
+    const group = new Group({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
         rDate: req.body.rDate
     });
 
-    role.save().then(result => {
+    group.save().then(result => {
         res.status(201).json({
             message: "Rol kaydedildi.",
             messageType: 1,
-            role: role
+            group: group
         });
     }).catch(err => {
         res.status(500).json({
@@ -27,10 +27,10 @@ module.exports.roleAdd = [checkAuth, (req, res, next) => {
 
 }];
 
-module.exports.roleUpdate = [checkAuth, (req, res, next) => {
-    const roleId = req.params.roleId;
+module.exports.groupUpdate = [checkAuth, (req, res, next) => {
+    const groupId = req.params.groupId;
 
-    Role.update({ _id: roleId }, { $set: req.body })
+    Group.update({ _id: groupId }, { $set: req.body })
         .exec()
         .then(doc => {
             res.status(200).json(doc);
@@ -44,9 +44,9 @@ module.exports.roleUpdate = [checkAuth, (req, res, next) => {
         });
 }]
 
-module.exports.roleGet = [checkAuth, (req, res, next) => {
-    const roleId = req.params.roleId;
-    Role.findById(roleId)
+module.exports.groupGet = [checkAuth, (req, res, next) => {
+    const groupId = req.params.groupId;
+    Group.findById(groupId)
         .exec()
         .then(doc => {
             if (doc) {
@@ -64,13 +64,13 @@ module.exports.roleGet = [checkAuth, (req, res, next) => {
         });
 }]
 
-module.exports.roleList = [checkAuth, (req, res, next) => {
+module.exports.groupList = [checkAuth, (req, res, next) => {
 
     let pageOptions = {
         page: req.body.page || 0,
         limit: req.body.limit || 2
     }
-    Role.aggregate([
+    Group.aggregate([
         { $match: {} },
         {
             $facet: {
@@ -110,9 +110,9 @@ module.exports.roleList = [checkAuth, (req, res, next) => {
         });
 }]
 
-module.exports.roleDelete = [checkAuth, (req, res, next) => {
-    const roleId = req.params.roleId;
-    Role.remove({ _id: roleId })
+module.exports.groupDelete = [checkAuth, (req, res, next) => {
+    const groupId = req.params.groupId;
+    Group.remove({ _id: groupId })
         .exec()
         .then(result => {
             res.status(200).json({

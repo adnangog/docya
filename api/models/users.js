@@ -10,7 +10,7 @@ const userSchema = new schema(
         email: { type: String, required: true, unique: true, match: /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/},
         rDate: Date,
         status: Number,
-        roles: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Role' }],
+        groups: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Group' }],
         department: { type: mongoose.Schema.Types.ObjectId, ref: 'Department' },
         username: { type: String, required: true, unique: true },
         password: { type: String, required: true },
