@@ -70,7 +70,7 @@ module.exports.userUpdate = [
     checkAuth,
     (req, res, next) => {
         const userId = req.params.userId;
-        User.update({ _id: userId }, { $set: req.body })
+        User.update({ _id: userId }, { $set: req.body }, { upsert: true})
             .exec()
             .then(doc => {
                 res.status(200).json(doc);
