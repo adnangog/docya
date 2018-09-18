@@ -9,5 +9,6 @@ router.patch('/:userId', controller.userUpdate);
 router.get('/:userId', controller.userGet);
 router.get('/delete/:userId', controller.userDelete);
 router.post('/document/add', controller.userDocumentAdd);
+router.post('/authset/:authsetId', controller.userByAuthSetId);
 
 module.exports = router;
