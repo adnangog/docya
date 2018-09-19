@@ -4,6 +4,7 @@ const path = require('path');
 const Document = require('../models/documents');
 const Version = require('../models/versions');
 const DocumentType = require('../models/documentTypes');
+const Transaction = require('../models/transactions');
 const checkAuth = require("../middleware/checkAuth");
 const moment = require("moment");
 
@@ -107,6 +108,18 @@ module.exports.documentAdds = [checkAuth, (req, res, next) => {
                 Version.update({ _id: mongoose.Types.ObjectId(document.version) }, { $set: { document: mongoose.Types.ObjectId(document._id) } })
                     .exec()
                     .then(doc => {
+
+                        new Transaction({
+                            _id: new mongoose.Types.ObjectId(),
+                            rDate: req.body.rDate,
+                            user: req.body.user,
+                            type: 6,
+                            document: mongoose.Types.ObjectId(document._id),
+                            card: null,
+                            folder: null,
+                            detail: null
+                        }).save();
+
                         if (totalItems - i === 1) {
                             res.status(201).json({
                                 message: "Dokuman(lar) kaydedildi.",

@@ -11,7 +11,9 @@ module.exports.transactionAdd = [checkAuth, (req, res, next) => {
         type: req.body.type,
         document: req.body.document,
         card: req.body.card,
+        folder: req.body.folder,
         rDate: req.body.rDate,
+        detail: req.body.detail
     });
 
     transaction.save().then(result => {
@@ -47,6 +49,29 @@ module.exports.transactionUpdate = [checkAuth, (req, res, next) => {
         });
 }]
 
+module.exports.transactionByItemId = [checkAuth, (req, res, next) => {
+    const query = { $or: [
+        { document: mongoose.Types.ObjectId(req.params.itemId) }, 
+        { card: mongoose.Types.ObjectId(req.params.itemId) },
+        { folder: mongoose.Types.ObjectId(req.params.itemId) }
+    ] };
+    Transaction.find(query)
+        .exec()
+        .then(doc => {
+            if (doc) {
+                res.status(200).json(doc);
+            } else {
+                res.status(404).json({ message: "Bu id'ye ait bir kayit bulunamadi.", messageType: 0 });
+            }
+        })
+        .catch(err => {
+            res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
+                error: err
+            });
+        });
+}]
 module.exports.transactionGet = [checkAuth, (req, res, next) => {
     const transactionId = req.params.transactionId;
     Transaction.findById(transactionId)
