@@ -201,12 +201,12 @@ module.exports.userByAuthSetId = [
               $or: [
                 {
                   "authsetitems.authSet": {
-                    $eq: mongoose.Types.ObjectId(req.body.authSet)
+                    $eq: mongoose.Types.ObjectId(req.params.authsetId)
                   }
                 },
                 {
                   "authsetitems2.authSet": {
-                    $eq: mongoose.Types.ObjectId(req.body.authSet)
+                    $eq: mongoose.Types.ObjectId(req.params.authsetId)
                   }
                 }
               ]
