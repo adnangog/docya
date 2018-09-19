@@ -4,7 +4,7 @@ const schema = mongoose.Schema;
 
 const transactionTypeSchema = new schema(
     {
-        _id: mongoose.Schema.Types.ObjectId,
+        _id: Number,
         name: { type: String, required: true }
     }
 );

@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Folder = require("../models/folders");
+const Transaction = require('../models/transactions');
 const checkAuth = require("../middleware/checkAuth");
 const moment = require("moment");
 
@@ -25,6 +26,18 @@ module.exports.folderAdd = [
 
                 Folder.update({ _id: req.body.parent }, { $push: { childs: folder._id } }).exec()
                     .then(ups => {
+
+                        new Transaction({
+                            _id: new mongoose.Types.ObjectId(),
+                            rDate: req.body.rDate,
+                            user: req.body.user,
+                            type: 3,
+                            document: null,
+                            card: null,
+                            folder: mongoose.Types.ObjectId(folder._id),
+                            detail: null
+                        }).save();
+
                         res.status(201).json({
                             message: "Klasör kaydedildi.",
                             messageType: 1,
