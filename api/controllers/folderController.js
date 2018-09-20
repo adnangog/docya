@@ -35,7 +35,7 @@ module.exports.folderAdd = [
                             document: null,
                             card: null,
                             folder: mongoose.Types.ObjectId(folder._id),
-                            detail: null
+                            detail: `${req.body.name} adlı klasör oluşturuldu`
                         }).save();
 
                         res.status(201).json({

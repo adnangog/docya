@@ -117,7 +117,7 @@ module.exports.documentAdds = [checkAuth, (req, res, next) => {
                             document: mongoose.Types.ObjectId(document._id),
                             card: null,
                             folder: null,
-                            detail: null
+                            detail: `${x.name} adlı döküman oluşturuldu`
                         }).save();
 
                         if (totalItems - i === 1) {
