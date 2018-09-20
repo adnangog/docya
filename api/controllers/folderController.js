@@ -109,6 +109,16 @@ module.exports.folderUpdate = [
         Folder.update({ _id: folderId }, { $set: req.body })
             .exec()
             .then(doc => {
+                new Transaction({
+                    _id: new mongoose.Types.ObjectId(),
+                    rDate: req.body.rDate,
+                    user: req.body.user,
+                    type: 3,
+                    document: null,
+                    card: null,
+                    folder: mongoose.Types.ObjectId(folderId),
+                    detail: `Klasör Guncellendi`
+                }).save();
                 res.status(200).json(doc);
             })
             .catch(err => {
