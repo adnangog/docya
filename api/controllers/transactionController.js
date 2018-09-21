@@ -40,8 +40,10 @@ module.exports.transactionsByItemId = [checkAuth, (req, res, next) => {
         { folder: mongoose.Types.ObjectId(req.params.itemId) }
     ] };
     Transaction.find(query)
+        .populate('user')
         .exec()
         .then(doc => {
+            console.log(doc);
             if (doc) {
                 res.status(200).json(doc);
             } else {

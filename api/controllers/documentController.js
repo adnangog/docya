@@ -159,6 +159,18 @@ module.exports.documentUpdate = [checkAuth, (req, res, next) => {
     Document.update({ _id: documentId }, { $set: req.body })
         .exec()
         .then(doc => {
+
+            new Transaction({
+                _id: new mongoose.Types.ObjectId(),
+                rDate: req.body.uDate,
+                user: req.body.uUser,
+                type: 7,
+                document: mongoose.Types.ObjectId(documentId),
+                card: null,
+                folder: null,
+                detail: `${req.body.name} adlı döküman güncellendi.`
+            }).save();
+
             res.status(200).json(doc);
         })
         .catch(err => {
