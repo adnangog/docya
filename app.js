@@ -13,6 +13,7 @@ const transactionRoute = require('./api/routes/transactionRoute');
 const tagRoute = require('./api/routes/tagRoute');
 const mailRoute = require('./api/routes/mailRoute');
 const formRoute = require('./api/routes/formRoute');
+const searchRoute = require('./api/routes/searchRoute');
 
 const app = express();
 const mongoose = require('mongoose');
@@ -48,5 +49,6 @@ app.use('/transaction', transactionRoute);
 app.use('/tag', tagRoute);
 app.use('/mail', mailRoute);
 app.use('/form', formRoute);
+app.use('/search', searchRoute);
 
 app.listen(8000)
