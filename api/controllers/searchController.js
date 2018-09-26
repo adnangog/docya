@@ -69,49 +69,17 @@ module.exports.searchGet = [checkAuth, (req, res, next) => {
 }]
 
 module.exports.searchList = [checkAuth, (req, res, next) => {
-
-    let pageOptions = {
-        page: req.body.page || 0,
-        limit: req.body.limit || 2
-    }
-    Search.aggregate([
-        { $match: {} },
-        {
-            $facet: {
-                data: [
-                    //   { $sort: sort },
-                    { $skip: pageOptions.page },
-                    { $limit: pageOptions.limit }
-                ],
-                info: [{ $group: { _id: null, count: { $sum: 1 } } }]
-            }
-        }
-    ]).exec()
-        .then(docs => {
-            let data = {
-                "header": [
-                    [
-                        "Id",
-                        "Adı",
-                        "Kayıt Tarihi",
-                    ]
-                ],
-                "data": docs[0].data.map((x) => [
-                    x._id,
-                    x.name,
-                    moment(x.rDate).searchat("YYYY-MM-DD HH:mm:ss")
-                ]),
-                "count": docs[0].info[0].count
-            };
-            res.status(200).json(data);
-        })
-        .catch(err => {
-            res.status(500).json({
-                messageType: -1,
-                message: "Bir hata oluştu.",
-                error: err
+    Search.find({$and: [{ "form": mongoose.Types.ObjectId(req.body.form) }, { "user": mongoose.Types.ObjectId(req.body.user) }]}).exec()
+            .then(docs => {
+                res.status(201).json(docs);
+            })
+            .catch(err => {
+                res.status(500).json({
+                    messageType: -1,
+                    message: "Bir hata oluştu.",
+                    error: err
+                });
             });
-        });
 }]
 
 module.exports.searchDelete = [checkAuth, (req, res, next) => {
