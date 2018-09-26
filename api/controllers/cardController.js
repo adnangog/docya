@@ -302,6 +302,139 @@ module.exports.cardList = [checkAuth, (req, res, next) => {
         });
 }]
 
+module.exports.cardListTabulator = [checkAuth, (req, res, next) => {
+    let pageOptions = {
+        page: req.body.page || 0,
+        limit: req.body.limit || 20
+    }
+    var data = '';
+
+    let query = {};
+
+    if (req.body.cardTemplateId) {
+        query = { "cardTemplate": mongoose.Types.ObjectId(req.body.cardTemplateId) }
+    }
+
+    Card.aggregate([
+        //  { $match: { $or: [ { "fields.adiniz_soyadiniz": new RegExp(data, 'i') }, { "fields.egitim_durumu": new RegExp(data, 'i') } ] } },
+        { $match: query },
+        {
+            $match: {
+                "authSet": {
+                    $ne: null
+                }
+            }
+        },
+        {
+            $lookup: {
+                from: "authsets",
+                localField: "authSet",
+                foreignField: "_id",
+                as: "authsets"
+            }
+        }, {
+            $unwind: {
+                path: "$authsets",
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $lookup: {
+                from: "authsetitems",
+                localField: "authsets._id",
+                foreignField: "authSet",
+                as: "authsetitems"
+            }
+        }, {
+            $unwind: {
+                path: "$authsetitems",
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $match: {
+                $or: [{
+                    $and: [
+                        { "authsetitems": { $exists: true } }, { "authsetitems.type": { $eq: 1 } }, { "authsetitems.ownerId": { $eq: mongoose.Types.ObjectId(req.body.userId)} }, { "authsetitems.authorities": { $elemMatch: { $eq: 1 } } } // 1 kartı görme yetkisidir
+                    ]
+                },
+                {
+                    $and: [
+                        { "authsetitems": { $exists: true } }, { "authsetitems.type": { $eq: 2 } }, { "authsetitems.ownerId": { $in: [mongoose.Types.ObjectId(req.body.userId)] } }, { "authsetitems.authorities": { $elemMatch: { $eq: 1 } } }  // 1 kartı görme yetkisidir
+                    ]
+                }
+                ]
+            }
+        },
+        {
+            $group: {
+                _id: "$_id",
+                name: {
+                    $first: "$name"
+                },
+                fields: {
+                    $first: "$fields"
+                },
+                rDate: {
+                    $first: "$rDate"
+                },
+                status: {
+                    $first: "$status"
+                },
+                type: {
+                    $first: "$type"
+                },
+                authsetitems: {
+                    $push: "$authsetitems"
+                }
+            }
+        },
+        {
+            $sort: {
+                "rDate": 1
+            }
+        },
+        {
+            $facet: {
+                data: [
+                    { $skip: 0 },
+                    { $limit: 50 }
+                ],
+                info: [{ $group: { _id: null, count: { $sum: 1 } } }]
+            }
+        }
+    ]).exec()
+        .then(docs => {
+
+            let data = {
+                "data": docs[0].data,
+                "count": docs[0].info.length > 0 ? docs[0].info[0].count : 0
+            };
+
+            let cIndex = 5;
+
+            // if (docs[0].data.length > 0) {
+            //     !!docs[0].data[0].fields && Object.keys(docs[0].data[0].fields[0]).map(x => data.header[0].push(helper.cHeaderText(x)));
+
+            //     data.data.map((d, i) => {
+            //         if (!!d[cIndex]) {
+            //             Object.keys(d[cIndex][0]).map(f => d.push(d[cIndex][0][f]));
+            //             d.splice(cIndex, 1)
+            //         }
+            //     });
+            // }
+
+            res.status(200).json(data);
+        })
+        .catch(err => {
+            res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
+                error: err
+            });
+        });
+}]
+
 module.exports.cardDelete = [checkAuth, (req, res, next) => {
     const cardId = req.params.cardId;
     Card.remove({ _id: cardId })

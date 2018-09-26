@@ -3,6 +3,7 @@ const router = express.Router();
 const controller = require('../controllers/cardController')
 
 router.post('/', controller.cardList);
+router.post('/d', controller.cardListTabulator);
 router.post('/add', controller.cardAdd);
 router.patch('/:cardId', controller.cardUpdate);
 router.post('/:cardId', controller.cardGet);
