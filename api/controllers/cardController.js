@@ -79,11 +79,13 @@ module.exports.cardUpdate = [checkAuth, (req, res, next) => {
 module.exports.cardGet = [checkAuth, (req, res, next) => {
     const cardId = req.params.cardId;
     Card.aggregate([
-        {  $match: {
-            "_id": {
-                $eq: mongoose.Types.ObjectId(cardId)
+        {
+            $match: {
+                "_id": {
+                    $eq: mongoose.Types.ObjectId(cardId)
+                }
             }
-        } },
+        },
         {
             $lookup: {
                 from: "authsetitems",
@@ -101,7 +103,7 @@ module.exports.cardGet = [checkAuth, (req, res, next) => {
             $match: {
                 $or: [{
                     $and: [
-                        { "authsetitems": { $exists: true } }, { "authsetitems.type": { $eq: 1 } }, { "authsetitems.ownerId": { $eq: mongoose.Types.ObjectId(req.body.userId)} }
+                        { "authsetitems": { $exists: true } }, { "authsetitems.type": { $eq: 1 } }, { "authsetitems.ownerId": { $eq: mongoose.Types.ObjectId(req.body.userId) } }
                     ]
                 },
                 {
@@ -138,7 +140,7 @@ module.exports.cardGet = [checkAuth, (req, res, next) => {
     ])
         .exec()
         .then(doc => {
-            if (doc.length>0) {
+            if (doc.length > 0) {
                 res.status(200).json(doc[0]);
             } else {
                 res.status(404).json({ message: "Bu id'ye ait bir kayit bulunamadi.", messageType: 0 });
@@ -206,7 +208,7 @@ module.exports.cardList = [checkAuth, (req, res, next) => {
             $match: {
                 $or: [{
                     $and: [
-                        { "authsetitems": { $exists: true } }, { "authsetitems.type": { $eq: 1 } }, { "authsetitems.ownerId": { $eq: mongoose.Types.ObjectId(req.body.userId)} }, { "authsetitems.authorities": { $elemMatch: { $eq: 1 } } } // 1 kartı görme yetkisidir
+                        { "authsetitems": { $exists: true } }, { "authsetitems.type": { $eq: 1 } }, { "authsetitems.ownerId": { $eq: mongoose.Types.ObjectId(req.body.userId) } }, { "authsetitems.authorities": { $elemMatch: { $eq: 1 } } } // 1 kartı görme yetkisidir
                     ]
                 },
                 {
@@ -307,13 +309,80 @@ module.exports.cardListTabulator = [checkAuth, (req, res, next) => {
         page: req.body.page || 0,
         limit: req.body.limit || 20
     }
-    var data = '';
 
     let query = {};
 
     if (req.body.cardTemplateId) {
         query = { "cardTemplate": mongoose.Types.ObjectId(req.body.cardTemplateId) }
     }
+
+    if (req.body.searches.length > 0) {
+        console.log(JSON.stringify(req.body.searches,null,4));
+        query = {
+            "cardTemplate": mongoose.Types.ObjectId(req.body.cardTemplateId),
+            $or: req.body.searches.map(function (group, i) {
+                return ({
+                    $and: group.items.map(function (item, i) {
+                        if (item.type === "string" || item.type === "text") {
+                            switch (item.rule) {
+                                case "equal":
+                                    return ({
+                                        ["fields." + item.field]: item.value
+                                    })
+                                case "notequal":
+                                    return ({
+                                        ["fields." + item.field]: { $not: item.value }
+                                    })
+                                case "like":
+                                    return ({
+                                        ["fields." + item.field]: new RegExp(item.value, 'i')
+                                    })
+                                case "notlike":
+                                    return ({
+                                        ["fields." + item.field]: { $not: new RegExp(item.value, 'i') }
+                                    })
+
+                                default:
+                                    return ({})
+                            }
+                        } else {
+                            switch (item.rule) {
+                                case "equal":
+                                    return ({
+                                        ["fields." + item.field]: item.value
+                                    })
+                                case "notequal":
+                                    return ({
+                                        ["fields." + item.field]: { $not: item.value }
+                                    })
+                                case "less":
+                                    return ({
+                                        ["fields." + item.field]: { $lt: item.value }
+                                    })
+                                case "greater":
+                                    return ({
+                                        ["fields." + item.field]: { $gt: item.value }
+                                    })
+                                case "between":
+                                    return ({
+                                        ["fields." + item.field]: {
+                                            $gte: item.value[0],
+                                            $lt: item.value[1]
+                                        }
+                                    })
+
+                                default:
+                                    return ({})
+                            }
+
+                        }
+                    })
+                })
+            })
+        };
+    }
+
+    console.log(JSON.stringify(query,null,4));
 
     Card.aggregate([
         //  { $match: { $or: [ { "fields.adiniz_soyadiniz": new RegExp(data, 'i') }, { "fields.egitim_durumu": new RegExp(data, 'i') } ] } },
@@ -355,7 +424,7 @@ module.exports.cardListTabulator = [checkAuth, (req, res, next) => {
             $match: {
                 $or: [{
                     $and: [
-                        { "authsetitems": { $exists: true } }, { "authsetitems.type": { $eq: 1 } }, { "authsetitems.ownerId": { $eq: mongoose.Types.ObjectId(req.body.userId)} }, { "authsetitems.authorities": { $elemMatch: { $eq: 1 } } } // 1 kartı görme yetkisidir
+                        { "authsetitems": { $exists: true } }, { "authsetitems.type": { $eq: 1 } }, { "authsetitems.ownerId": { $eq: mongoose.Types.ObjectId(req.body.userId) } }, { "authsetitems.authorities": { $elemMatch: { $eq: 1 } } } // 1 kartı görme yetkisidir
                     ]
                 },
                 {
