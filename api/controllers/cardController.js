@@ -317,7 +317,6 @@ module.exports.cardListTabulator = [checkAuth, (req, res, next) => {
     }
 
     if (req.body.searches.length > 0) {
-        console.log(JSON.stringify(req.body.searches,null,4));
         query = {
             "cardTemplate": mongoose.Types.ObjectId(req.body.cardTemplateId),
             $or: req.body.searches.map(function (group, i) {
@@ -381,8 +380,6 @@ module.exports.cardListTabulator = [checkAuth, (req, res, next) => {
             })
         };
     }
-
-    console.log(JSON.stringify(query,null,4));
 
     Card.aggregate([
         //  { $match: { $or: [ { "fields.adiniz_soyadiniz": new RegExp(data, 'i') }, { "fields.egitim_durumu": new RegExp(data, 'i') } ] } },
