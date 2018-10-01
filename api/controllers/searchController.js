@@ -34,10 +34,15 @@ module.exports.searchAdd = [checkAuth, (req, res, next) => {
 
 module.exports.searchUpdate = [checkAuth, (req, res, next) => {
     const searchId = req.params.searchId;
+    console.log(searchId);
     Search.update({ _id: searchId }, { $set: req.body })
         .exec()
         .then(doc => {
-            res.status(200).json(doc);
+            res.status(200).json({
+                messageType: 1,
+                message: "Arama Güncellendi",
+                doc: doc
+            });
         })
         .catch(err => {
             res.status(500).json({
