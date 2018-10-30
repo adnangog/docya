@@ -14,6 +14,8 @@ const tagRoute = require('./api/routes/tagRoute');
 const mailRoute = require('./api/routes/mailRoute');
 const formRoute = require('./api/routes/formRoute');
 const searchRoute = require('./api/routes/searchRoute');
+const flowRoute = require('./api/routes/flowRoute');
+const flowTemplateRoute = require('./api/routes/flowTemplateRoute');
 
 const app = express();
 const mongoose = require('mongoose');
@@ -50,5 +52,7 @@ app.use('/tag', tagRoute);
 app.use('/mail', mailRoute);
 app.use('/form', formRoute);
 app.use('/search', searchRoute);
+app.use('/flow', flowRoute);
+app.use('/flowTemplate', flowTemplateRoute);
 
 app.listen(8000)
