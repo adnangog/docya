@@ -16,7 +16,8 @@ const userSchema = new schema(
         password: { type: String, required: true },
         source: String,
         title:String,
-        position: { type: mongoose.Schema.Types.ObjectId, ref: 'Position' },
+        // position: { type: mongoose.Schema.Types.ObjectId, ref: 'Position' },
+        position: String,
         proxy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     }
 
