@@ -98,7 +98,7 @@ module.exports.formTypeList = [checkAuth, (req, res, next) => {
                 "data": docs[0].data.map((x) => [
                     x._id,
                     x.name,
-                    moment(x.rDate).formTypeat("YYYY-MM-DD HH:mm:ss")
+                    moment(x.rDate).format("YYYY-MM-DD HH:mm:ss")
                 ]),
                 "count": docs[0].info[0].count
             };
