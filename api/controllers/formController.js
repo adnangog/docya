@@ -8,6 +8,7 @@ module.exports.formAdd = [checkAuth, (req, res, next) => {
     const form = new Form({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
+        formType: req.body.formType,
         fields: req.body.fields,
         user: req.body.user,
         status: 1,
