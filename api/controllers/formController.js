@@ -1,26 +1,45 @@
 const mongoose = require('mongoose');
 const path = require('path');
 const Form = require('../models/forms');
+const FormVersion = require('../models/formVersions');
 const checkAuth = require("../middleware/checkAuth");
 const moment = require("moment");
 
 module.exports.formAdd = [checkAuth, (req, res, next) => {
+
     const form = new Form({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
         formType: req.body.formType,
-        fields: req.body.fields,
         user: req.body.user,
         status: 1,
-        rDate: req.body.rDate
+        rDate: req.body.rDate,
+        formVersion:null
     });
 
-    form.save().then(result => {
-        res.status(201).json({
-            message: "Form kaydedildi.",
-            messageType: 1,
-            form: form
+    form.save().then(form_ => {
+
+        const formVersion = new FormVersion({
+            _id: new mongoose.Types.ObjectId(),
+            name: "1.0",
+            form: form_._id,
+            rDate: req.body.rDate,
+            user: req.body.user,
+            fields: req.body.fields
         });
+        
+        formVersion.save().then(formVersion_ => {
+            form.update({ _id: mongoose.Types.ObjectId(form_._id) }, { $set: { formVersion: mongoose.Types.ObjectId(formVersion_._id) } })
+            .exec()
+            .then(form => {
+                res.status(201).json({
+                    message: "Form kaydedildi.",
+                    messageType: 1,
+                    form: form
+                });
+            });
+        })
+
     }).catch(err => {
         res.status(500).json({
             messageType: -1,
@@ -34,6 +53,28 @@ module.exports.formAdd = [checkAuth, (req, res, next) => {
 
 module.exports.formUpdate = [checkAuth, (req, res, next) => {
     const formId = req.params.formId;
+
+    const formVersion = new FormVersion({
+        _id: new mongoose.Types.ObjectId(),
+        name: "1.0",
+        form: formId,
+        rDate: req.body.rDate,
+        user: req.body.user,
+        fields: req.body.fields
+    });
+    
+    formVersion.save().then(result => {
+        form.update({ _id: mongoose.Types.ObjectId(form.version) }, { $set: { formVersion: mongoose.Types.ObjectId(formVersion._id) } })
+        .exec()
+        .then(form => {
+            res.status(201).json({
+                message: "Form kaydedildi.",
+                messageType: 1,
+                form: form
+            });
+        });
+    })
+
     Form.update({ _id: formId }, { $set: req.body })
         .exec()
         .then(doc => {
@@ -51,8 +92,10 @@ module.exports.formUpdate = [checkAuth, (req, res, next) => {
 module.exports.formGet = [checkAuth, (req, res, next) => {
     const formId = req.params.formId;
     Form.findById(formId)
+        .populate('formVersion')
         .exec()
         .then(doc => {
+            console.log(doc)
             if (doc) {
                 res.status(200).json(doc);
             } else {
