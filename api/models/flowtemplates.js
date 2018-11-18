@@ -9,10 +9,10 @@ const flowTemplateSchema = new schema(
         name: { type: String, required: true },
         authSet: { type: mongoose.Schema.Types.ObjectId, ref: 'AuthoritySet' },
         user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-        type:Number, //1- Dosya Karti 2- Kabinet
+        formType:{ type: mongoose.Schema.Types.ObjectId, ref: 'FormType' },
         form: { type: mongoose.Schema.Types.ObjectId, ref: 'Form' },
         formVer: { type: mongoose.Schema.Types.ObjectId, ref: 'FormVer' },
-        
+        organization: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization' },
         calendar: { type: mongoose.Schema.Types.ObjectId, ref: 'Calendar' },
         steps : [mongoose.Schema.Types.Mixed],
         status: Number,

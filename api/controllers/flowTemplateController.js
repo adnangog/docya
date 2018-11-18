@@ -16,7 +16,7 @@ module.exports.flowTemplateAdd = [
             type: req.body.type,
             form: req.body.form,
             formVer: req.body.formVer,
-            schema: req.body.schema,
+            organization: req.body.organization,
             calendar: req.body.calendar,
             steps:req.body.steps,
             rDate: req.body.rDate,
@@ -24,12 +24,11 @@ module.exports.flowTemplateAdd = [
         });
 
         flowTemplate.save()
-            .then(res => {
-
+            .then(result => {
                 res.status(201).json({
                     message: "Akış template'i kaydedildi.",
                     messageType: 1,
-                    flowTemplate: flowTemplate
+                    flowTemplate: result
                 });
 
             })
@@ -100,30 +99,6 @@ module.exports.flowTemplateList = [
         FlowTemplate.aggregate([
             { $match: {} },
             {
-                $lookup: {
-                    from: "cards",
-                    localField: "card",
-                    foreignField: "_id",
-                    as: "card"
-                }
-            },
-            {
-                $lookup: {
-                    from: "users",
-                    localField: "user",
-                    foreignField: "_id",
-                    as: "user"
-                }
-            },
-            {
-                $lookup: {
-                    from: "flowTemplates",
-                    localField: "parent",
-                    foreignField: "_id",
-                    as: "parent"
-                }
-            },
-            {
                 $facet: {
                     data: [
                         //   { $sort: sort },
@@ -141,22 +116,14 @@ module.exports.flowTemplateList = [
                         [
                             "Id",
                             "Adı",
-                            "Üst Klasör",
-                            "Ekleyen",
-                            "Kart",
                             "Açıklama",
-                            "Durum",
                             "Kayıt Tarihi"
                         ]
                     ],
                     data: docs[0].data.map(x => [
                         x._id,
                         x.name,
-                        x.parent.length > 0 ? x.parent[0].name : [],
-                        x.user.length > 0 ? `${x.user[0].fName} ${x.user[0].lName}` : [],
-                        x.card.length > 0 ? x.card[0].name : [],
                         x.description,
-                        x.status === 1 ? "Aktif" : "Pasif",
                         moment(x.rDate).format("YYYY-MM-DD HH:mm:ss")
                     ]),
                     count: docs[0].info[0].count

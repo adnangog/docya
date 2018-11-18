@@ -14,7 +14,7 @@ module.exports.formAdd = [checkAuth, (req, res, next) => {
         user: req.body.user,
         status: 1,
         rDate: req.body.rDate,
-        formVersion:null
+        formVersion: null
     });
 
     form.save().then(form_ => {
@@ -27,17 +27,17 @@ module.exports.formAdd = [checkAuth, (req, res, next) => {
             user: req.body.user,
             fields: req.body.fields
         });
-        
+
         formVersion.save().then(formVersion_ => {
-            form.update({ _id: mongoose.Types.ObjectId(form_._id) }, { $set: { formVersion: mongoose.Types.ObjectId(formVersion_._id) } })
-            .exec()
-            .then(form => {
-                res.status(201).json({
-                    message: "Form kaydedildi.",
-                    messageType: 1,
-                    form: form
+            Form.update({ _id: mongoose.Types.ObjectId(form._id) }, { $set: { formVersion: mongoose.Types.ObjectId(formVersion._id) } })
+                .exec()
+                .then(form => {
+                    res.status(201).json({
+                        message: "Form kaydedildi.",
+                        messageType: 1,
+                        form: form
+                    });
                 });
-            });
         })
 
     }).catch(err => {
@@ -62,17 +62,17 @@ module.exports.formUpdate = [checkAuth, (req, res, next) => {
         user: req.body.user,
         fields: req.body.fields
     });
-    
+
     formVersion.save().then(result => {
         form.update({ _id: mongoose.Types.ObjectId(form.version) }, { $set: { formVersion: mongoose.Types.ObjectId(formVersion._id) } })
-        .exec()
-        .then(form => {
-            res.status(201).json({
-                message: "Form kaydedildi.",
-                messageType: 1,
-                form: form
+            .exec()
+            .then(form => {
+                res.status(201).json({
+                    message: "Form kaydedildi.",
+                    messageType: 1,
+                    form: form
+                });
             });
-        });
     })
 
     Form.update({ _id: formId }, { $set: req.body })
@@ -95,7 +95,6 @@ module.exports.formGet = [checkAuth, (req, res, next) => {
         .populate('formVersion')
         .exec()
         .then(doc => {
-            console.log(doc)
             if (doc) {
                 res.status(200).json(doc);
             } else {
@@ -117,8 +116,64 @@ module.exports.formList = [checkAuth, (req, res, next) => {
         page: req.body.page || 0,
         limit: req.body.limit || 2
     }
+
+    var query = {};
+    if(req.body.formType !== undefined){
+        query = { "formType": mongoose.Types.ObjectId(req.body.formType) }
+    }
     Form.aggregate([
-        { $match: {} },
+        { $match: query },
+        {
+            $facet: {
+                data: [
+                    //   { $sort: sort },
+                    { $skip: pageOptions.page },
+                    { $limit: pageOptions.limit }
+                ],
+                info: [{ $group: { _id: null, count: { $sum: 1 } } }]
+            }
+        }
+    ]).exec()
+        .then(docs => {
+            let data = {
+                "header": [
+                    [
+                        "Id",
+                        "Adı",
+                        "Kayıt Tarihi",
+                    ]
+                ],
+                "data": docs[0].data.map((x) => [
+                    x._id,
+                    x.name,
+                    moment(x.rDate).format("YYYY-MM-DD HH:mm:ss")
+                ]),
+                "count": docs[0].info[0].count
+            };
+            res.status(200).json(data);
+        })
+        .catch(err => {
+            res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
+                error: err
+            });
+        });
+}]
+
+module.exports.formVersionList = [checkAuth, (req, res, next) => {
+
+    let pageOptions = {
+        page: req.body.page || 0,
+        limit: req.body.limit || 2
+    }
+
+    var query = {};
+    if(req.body.formType !== null){
+        query = { "form": mongoose.Types.ObjectId(req.body.form) }
+    }
+    FormVersion.aggregate([
+        { $match: query },
         {
             $facet: {
                 data: [
@@ -162,10 +217,14 @@ module.exports.formDelete = [checkAuth, (req, res, next) => {
     Form.remove({ _id: formId })
         .exec()
         .then(result => {
-            res.status(200).json({
-                messageType: 1,
-                message: "işlem başarılı."
-            });
+            FormVersion.remove({ form: formId })
+                .exec()
+                .then(result => {
+                    res.status(200).json({
+                        messageType: 1,
+                        message: "işlem başarılı."
+                    });
+                });
         })
         .catch(err => {
             res.status(500).json({
