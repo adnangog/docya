@@ -8,6 +8,7 @@ module.exports.listAdd = [checkAuth, (req, res, next) => {
     const list = new List({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
+        description: req.body.description,
         items: req.body.items,
         rDate: req.body.rDate
     });
@@ -90,12 +91,14 @@ module.exports.listList = [checkAuth, (req, res, next) => {
                     [
                         "Id",
                         "Liste Adı",
+                        "Açıklama",
                         "Kayıt Tarihi",
                     ]
                 ],
                 "data": docs[0].data.map((x) => [
                     x._id,
                     x.name,
+                    x.description,
                     moment(x.rDate).format("YYYY-MM-DD HH:mm:ss")
                 ]),
                 "count": docs[0].info[0].count
