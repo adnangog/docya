@@ -214,3 +214,15 @@ module.exports.flowDelete = [
             });
     }
 ];
+
+var flowController = (currentStep, steps, ) => {
+    var step = steps.filter(function (a) {
+        return a.sortIndex === currentStep
+    });
+    if (step.length > 0 && step[0].type !== "manual" && step[0].type !== "end") {
+        console.log(step[0].id);
+        step[0].statu = 1;
+        flowController(step[0].sortIndex + 1, steps);
+    }
+    return steps;
+}
