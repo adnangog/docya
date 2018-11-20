@@ -15,7 +15,7 @@ module.exports.flowTemplateAdd = [
             user: req.body.user,
             type: req.body.type,
             form: req.body.form,
-            formVer: req.body.formVer,
+            formVersion: req.body.formVersion,
             organization: req.body.organization,
             calendar: req.body.calendar,
             steps:req.body.steps,
@@ -66,6 +66,7 @@ module.exports.flowTemplateGet = [
     (req, res, next) => {
         const flowTemplateId = req.params.flowTemplateId;
         FlowTemplate.findById(flowTemplateId)
+            .populate('formVersion')
             .exec()
             .then(doc => {
                 if (doc) {

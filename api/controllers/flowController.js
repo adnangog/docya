@@ -1,38 +1,47 @@
 const mongoose = require("mongoose");
 const Flow = require("../models/flows");
+const FlowTemplate = require("../models/flowTemplates");
 const Transaction = require('../models/transactions');
 const checkAuth = require("../middleware/checkAuth");
 const moment = require("moment");
+const helper = require("../helpers/index");
 
 module.exports.flowAdd = [
     checkAuth,
     (req, res, next) => {
-        const flow = new Flow({
-            _id: new mongoose.Types.ObjectId(),
-            parentId: req.body.parentId,
-            name: req.body.name,
-            authSet: req.body.authSet,
-            user: req.body.user,
-            type: req.body.type,
-            form: req.body.form,
-            formVer: req.body.formVer,
-            fields: req.body.fields,
-            schema: req.body.schema,
-            calendar: req.body.calendar,
-            steps:req.body.steps,
-            rDate: req.body.rDate,
-            status: 1
-        });
+        FlowTemplate.findById(req.body.flowTemplate)
+            .exec()
+            .then(doc => {
+                if (doc) {
+                    const flow = new Flow({
+                        _id: new mongoose.Types.ObjectId(),
+                        flowTemplate: req.body.flowTemplate,
+                        name: req.body.name,
+                        authSet: doc.authSet,
+                        user: req.body.user,
+                        type: doc.type,
+                        form: doc.form,
+                        formVersion: doc.formVersion,
+                        fields: req.body.fields,
+                        organization: doc.organization,
+                        steps: doc.steps,
+                        rDate: Date.now(),
+                        status: 1,
+                        currentStep: 1
+                    });
 
-        flow.save()
-            .then(res => {
+                    flow.save()
+                        .then(flow => {
+                            res.status(201).json({
+                                message: "Akış kaydedildi.",
+                                messageType: 1,
+                                flow: flow
+                            });
 
-                res.status(201).json({
-                    message: "Akış template'i kaydedildi.",
-                    messageType: 1,
-                    flow: flow
-                });
-
+                        })
+                } else {
+                    res.status(404).json({ message: "Bu id'ye ait bir kayit bulunamadi.", messageType: 0 });
+                }
             })
             .catch(err => {
                 res.status(500).json({
@@ -98,16 +107,15 @@ module.exports.flowList = [
             page: req.body.page || 0,
             limit: req.body.limit || 2
         };
+
+        let query = {};
+
+        if (req.body.flowTemplate) {
+            query = { "flowTemplate": mongoose.Types.ObjectId(req.body.flowTemplate) }
+        }
+
         Flow.aggregate([
-            { $match: {} },
-            {
-                $lookup: {
-                    from: "cards",
-                    localField: "card",
-                    foreignField: "_id",
-                    as: "card"
-                }
-            },
+            { $match: query },
             {
                 $lookup: {
                     from: "users",
@@ -118,10 +126,10 @@ module.exports.flowList = [
             },
             {
                 $lookup: {
-                    from: "flows",
-                    localField: "parent",
+                    from: "flowtemplates",
+                    localField: "flowTemplate",
                     foreignField: "_id",
-                    as: "parent"
+                    as: "flowTemplate"
                 }
             },
             {
@@ -142,10 +150,8 @@ module.exports.flowList = [
                         [
                             "Id",
                             "Adı",
-                            "Üst Klasör",
-                            "Ekleyen",
-                            "Kart",
-                            "Açıklama",
+                            "Template",
+                            "Başlatan",
                             "Durum",
                             "Kayıt Tarihi"
                         ]
@@ -153,15 +159,28 @@ module.exports.flowList = [
                     data: docs[0].data.map(x => [
                         x._id,
                         x.name,
-                        x.parent.length > 0 ? x.parent[0].name : [],
+                        x.flowTemplate.length > 0 ? x.flowTemplate[0].name : [],
                         x.user.length > 0 ? `${x.user[0].fName} ${x.user[0].lName}` : [],
-                        x.card.length > 0 ? x.card[0].name : [],
-                        x.description,
-                        x.status === 1 ? "Aktif" : "Pasif",
-                        moment(x.rDate).format("YYYY-MM-DD HH:mm:ss")
+                        x.status === 1 ? "Devam Ediyor" : x.status === 2 ? "Bitti" : "İptal",
+                        moment(x.rDate).format("YYYY-MM-DD HH:mm:ss"),
+                        x.fields // cIndex degiskeni degerini bu itemin indexinden aliyor.
                     ]),
-                    count: docs[0].info[0].count
+                    count: docs[0].info.length > 0 ? docs[0].info[0].count : 0
                 };
+
+                let cIndex = 6;
+
+                if (docs[0].data.length > 0) {
+                    !!docs[0].data[0].fields && Object.keys(docs[0].data[0].fields[0]).map(x => data.header[0].push(helper.cHeaderText(x)));
+
+                    data.data.map((d, i) => {
+                        if (!!d[cIndex]) {
+                            Object.keys(d[cIndex][0]).map(f => d.push(d[cIndex][0][f]));
+                            d.splice(cIndex, 1)
+                        }
+                    });
+                }
+
                 res.status(200).json(data);
             })
             .catch(err => {

@@ -11,7 +11,7 @@ const flowTemplateSchema = new schema(
         user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
         formType:{ type: mongoose.Schema.Types.ObjectId, ref: 'FormType' },
         form: { type: mongoose.Schema.Types.ObjectId, ref: 'Form' },
-        formVer: { type: mongoose.Schema.Types.ObjectId, ref: 'FormVer' },
+        formVersion: { type: mongoose.Schema.Types.ObjectId, ref: 'FormVersion'},
         organization: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization' },
         calendar: { type: mongoose.Schema.Types.ObjectId, ref: 'Calendar' },
         steps : [mongoose.Schema.Types.Mixed],
