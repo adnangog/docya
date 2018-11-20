@@ -220,6 +220,41 @@ var flowController = (currentStep, steps, ) => {
         return a.sortIndex === currentStep
     });
     if (step.length > 0 && step[0].type !== "manual" && step[0].type !== "end") {
+        switch (step[0].type) {
+            case "manual":
+                
+                break;
+            case "auto":
+                
+                break;
+            case "subflow":
+                
+                break;
+            case "webservice":
+                
+                break;
+            case "waiting":
+                
+                break;
+            case "decision":
+                
+                break;
+            case "combination":
+                
+                break;
+            case "distribution":
+                
+                break;
+            case "email":
+                
+                break;
+            case "message":
+                
+                break;
+        
+            default:
+                break;
+        }
         console.log(step[0].id);
         step[0].statu = 1;
         flowController(step[0].sortIndex + 1, steps);
