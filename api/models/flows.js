@@ -18,7 +18,9 @@ const flowSchema = new schema(
         calendar: { type: mongoose.Schema.Types.ObjectId, ref: 'Calendar' },
         steps : [mongoose.Schema.Types.Mixed],
         status: Number,
-        currentStep: Number,
+        currentStep: {},
+        assignedUser: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        assignedGroup: { type: mongoose.Schema.Types.ObjectId, ref: 'Group' },
         rDate: Date
     }
 

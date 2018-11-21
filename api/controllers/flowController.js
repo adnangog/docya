@@ -26,12 +26,14 @@ module.exports.flowAdd = [
                         organization: doc.organization,
                         steps: doc.steps,
                         rDate: Date.now(),
-                        status: 1,
-                        currentStep: 1
+                        status: 1
                     });
 
                     flow.save()
                         .then(flow => {
+
+                            flowController(1, doc.steps, flow);
+
                             res.status(201).json({
                                 message: "Akış kaydedildi.",
                                 messageType: 1,
@@ -215,49 +217,138 @@ module.exports.flowDelete = [
     }
 ];
 
-var flowController = (currentStep, steps, ) => {
+var flowController = (currentStep, steps, flow) => {
     var step = steps.filter(function (a) {
         return a.sortIndex === currentStep
     });
-    if (step.length > 0 && step[0].type !== "manual" && step[0].type !== "end") {
-        switch (step[0].type) {
-            case "manual":
-                
-                break;
-            case "auto":
-                
-                break;
-            case "subflow":
-                
-                break;
-            case "webservice":
-                
-                break;
-            case "waiting":
-                
-                break;
-            case "decision":
-                
-                break;
-            case "combination":
-                
-                break;
-            case "distribution":
-                
-                break;
-            case "email":
-                
-                break;
-            case "message":
-                
-                break;
-        
-            default:
-                break;
-        }
-        console.log(step[0].id);
-        step[0].statu = 1;
-        flowController(step[0].sortIndex + 1, steps);
+
+    flow.assignedUser = null;
+    flow.assignedGroup = null;
+
+    switch (step[0].type) {
+        case "manual":
+            switch (step[0].assignmentType) {
+                case "user":
+
+                    flow.assignedUser = step[0].assignedUser;
+
+                    switch (step[0].assignmentRule) {
+                        case "1": // kullanıcı seç
+
+                            break;
+                        case "2": // önceki kullanıcı
+
+                            break;
+                        case "3": // önceki kullanıcının yöneticisi
+
+                            break;
+                        case "4": // akış sahibi
+
+                            break;
+                        case "5": // akış sahibinin yöneticisi
+
+                            break;
+
+                        default:
+                            break;
+                    }
+
+                    break;
+                case "group":
+
+                    flow.assignedGroup = step[0].assignedUser;
+
+                    switch (step[0].groupRule) {
+                        case "1": // herhnagi
+
+                            break;
+                        case "2": // eşit dağılım
+
+                            break;
+
+                        default:
+                            break;
+                    }
+
+                    break;
+
+                default:
+                    flow.assignedUser = step[0].assignedUser;
+                    break;
+            }
+
+            if (step[0].isTimer) {
+
+                var date = null;
+                if (step[0].timer.dateType === 1) {
+                    date = moment(flow.rDate, "DD.MM.YYYY");
+
+                } else {
+                    date = moment(step[0].assignmentDate, "DD.MM.YYYY");
+                }
+
+                if (step[0].timer.type === 1) {
+                    date = moment(date).add(step[0].timer.value, 'hours').format('DD.MM.YYYY hh:mm:ss');
+                } else {
+                    date = moment(date).add(step[0].timer.value, 'days').format('DD.MM.YYYY hh:mm:ss');
+                }
+
+                // burada timer fonksiyonu eklenecek
+            }
+
+            if (step[0].isEmailProcess) {
+
+                // burada email gönderme fonksiyonu eklenecek
+            }
+
+            break;
+        case "auto":
+
+            break;
+        case "subflow":
+
+            break;
+        case "webservice":
+
+            break;
+        case "waiting":
+
+            break;
+        case "decision":
+
+            break;
+        case "combination":
+
+            break;
+        case "distribution":
+
+            break;
+        case "email":
+
+            break;
+        case "message":
+
+            break;
+
+        case "end":
+            flow.status = 2;
+            break;
+
+        default:
+            break;
     }
+
+    flow.currentStep = step[0];
+
+    Flow.update({ _id: flow._id }, { $set: flow })
+        .exec()
+        .then(doc => {
+            if (step[0].type === "manual" || step[0].type === "end") {
+                
+            } else {
+                flowController(step[0].sortIndex + 1, steps, flow);
+            }
+        })
+
     return steps;
 }
