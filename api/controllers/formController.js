@@ -110,6 +110,26 @@ module.exports.formGet = [checkAuth, (req, res, next) => {
         });
 }]
 
+module.exports.formVersionGet = [checkAuth, (req, res, next) => {
+    const formVersionId = req.params.formVersionId;
+    FormVersion.findById(formVersionId)
+        .exec()
+        .then(doc => {
+            if (doc) {
+                res.status(200).json(doc);
+            } else {
+                res.status(404).json({ message: "Bu id'ye ait bir kayit bulunamadi.", messageType: 0 });
+            }
+        })
+        .catch(err => {
+            res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
+                error: err
+            });
+        });
+}]
+
 module.exports.formList = [checkAuth, (req, res, next) => {
 
     let pageOptions = {

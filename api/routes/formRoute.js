@@ -7,6 +7,7 @@ router.post('/version', controller.formVersionList);
 router.post('/add', controller.formAdd);
 router.patch('/:formId', controller.formUpdate);
 router.get('/:formId', controller.formGet);
+router.get('/version/:formVersionId', controller.formVersionGet);
 router.get('/delete/:formId', controller.formDelete);
 
 module.exports = router;

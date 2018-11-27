@@ -314,6 +314,7 @@ module.exports.userLogin = (req, res, next) => {
           );
           return res.status(200).json({
             userId: user[0]._id,
+            groups: user[0].groups,
             userName: `${user[0].fName} ${user[0].lName}`,
             token: token,
             message: "Login başarılı",

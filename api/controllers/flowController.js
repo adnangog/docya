@@ -59,9 +59,22 @@ module.exports.flowUpdate = [
     checkAuth,
     (req, res, next) => {
         const flowId = req.params.flowId;
-        Flow.update({ _id: flowId }, { $set: req.body })
+        Flow.update({ _id: flowId }, { $set: { "currentStep.formFields": req.body.fields } })
             .exec()
             .then(doc => {
+                if (doc.nModified === 1) {
+                    Flow.findById(flowId)
+                        .exec()
+                        .then(currentFlow => {
+                            var steps = currentFlow.steps.filter(function(a){ return a.id !== currentFlow.currentStep.id });
+                            steps.push(currentFlow.currentStep);
+                            Flow.update({ _id: flowId }, { $set: { "assignedGroup": null, "assignedUser": null, "currentStep": null, steps: steps  } })
+                            .exec()
+                            .then(result => {
+                                flowController(currentFlow.currentStep.sortIndex + 1, currentFlow.steps, currentFlow);
+                            })
+                        })
+                }
                 res.status(200).json(doc);
             })
             .catch(err => {
@@ -111,9 +124,26 @@ module.exports.flowList = [
         };
 
         let query = {};
+        let query2 = {};
 
-        if (req.body.flowTemplate) {
-            query = { "flowTemplate": mongoose.Types.ObjectId(req.body.flowTemplate) }
+        if (req.body.flowTemplateId) {
+            query = { "flowTemplate": mongoose.Types.ObjectId(req.body.flowTemplateId) }
+        }
+
+        if (req.body.groupId) {
+            query2 = {
+                $or: [{
+                    $and: [
+                        { "assignedUser": { $eq: mongoose.Types.ObjectId(req.body.userId) } }
+                    ]
+                },
+                {
+                    $and: [
+                        { "assignedGroup": { $in: req.body.groupId } }
+                    ]
+                }
+                ]
+            }
         }
 
         Flow.aggregate([
@@ -134,6 +164,7 @@ module.exports.flowList = [
                     as: "flowTemplate"
                 }
             },
+            { $match: query2 },
             {
                 $facet: {
                     data: [
@@ -344,7 +375,7 @@ var flowController = (currentStep, steps, flow) => {
         .exec()
         .then(doc => {
             if (step[0].type === "manual" || step[0].type === "end") {
-                
+
             } else {
                 flowController(step[0].sortIndex + 1, steps, flow);
             }
