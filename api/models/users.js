@@ -5,8 +5,7 @@ const schema = mongoose.Schema;
 const userSchema = new schema(
     {
         _id: mongoose.Schema.Types.ObjectId,
-        fName: {type: String, required: true},
-        lName: { type: String, required: true },
+        name: { type: String, required: true },
         email: { type: String, required: true, unique: true, match: /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/},
         rDate: Date,
         status: Number,
@@ -16,6 +15,7 @@ const userSchema = new schema(
         password: { type: String, required: true },
         source: String,
         title:String,
+        avatar:String,
         // position: { type: mongoose.Schema.Types.ObjectId, ref: 'Position' },
         position: String,
         proxy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

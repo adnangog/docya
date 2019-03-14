@@ -11,6 +11,7 @@ module.exports.flowTemplateAdd = [
             _id: new mongoose.Types.ObjectId(),
             parentId: req.body.parentId,
             name: req.body.name,
+            description: req.body.description,
             authSet: req.body.authSet,
             user: req.body.user,
             type: req.body.type,
@@ -19,6 +20,8 @@ module.exports.flowTemplateAdd = [
             organization: req.body.organization,
             calendar: req.body.calendar,
             steps:req.body.steps,
+            connections:req.body.connections,
+            nodes:req.body.nodes,
             rDate: req.body.rDate,
             status: 1
         });
@@ -49,7 +52,11 @@ module.exports.flowTemplateUpdate = [
         FlowTemplate.update({ _id: flowTemplateId }, { $set: req.body })
             .exec()
             .then(doc => {
-                res.status(200).json(doc);
+                res.status(200).json({
+                    messageType: 1,
+                    message: "Akış güncellendi",
+                    detail: doc
+                });
             })
             .catch(err => {
                 res.status(500).json({

@@ -7,6 +7,7 @@ const flowTemplateSchema = new schema(
         _id: mongoose.Schema.Types.ObjectId,
         parentId: { type: mongoose.Schema.Types.ObjectId, ref: 'FlowTemplate' },
         name: { type: String, required: true },
+        description: String,
         authSet: { type: mongoose.Schema.Types.ObjectId, ref: 'AuthoritySet' },
         user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
         formType:{ type: mongoose.Schema.Types.ObjectId, ref: 'FormType' },
@@ -15,6 +16,8 @@ const flowTemplateSchema = new schema(
         organization: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization' },
         calendar: { type: mongoose.Schema.Types.ObjectId, ref: 'Calendar' },
         steps : [mongoose.Schema.Types.Mixed],
+        connections : [mongoose.Schema.Types.Mixed],
+        nodes : [mongoose.Schema.Types.Mixed],
         status: Number,
         currentStep: Number,
         rDate: Date

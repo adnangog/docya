@@ -19,14 +19,15 @@ const formRoute = require('./api/routes/formRoute');
 const searchRoute = require('./api/routes/searchRoute');
 const flowRoute = require('./api/routes/flowRoute');
 const flowTemplateRoute = require('./api/routes/flowTemplateRoute');
+const cdnRoute = require('./api/routes/cdnRoute');
 
 const app = express();
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const db = require('./api/models/db');
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
@@ -60,5 +61,6 @@ app.use('/form', formRoute);
 app.use('/search', searchRoute);
 app.use('/flow', flowRoute);
 app.use('/flowTemplate', flowTemplateRoute);
+app.use('/cdn', cdnRoute);
 
 app.listen(8000)

@@ -142,3 +142,58 @@ module.exports.departmentDelete = [checkAuth, (req, res, next) => {
         });
 
 }]
+
+
+/* v2 */
+
+module.exports.departmentList_ = [checkAuth, (req, res, next) => {
+
+    let pageOptions = {
+        page: req.body.page || 0,
+        limit: req.body.limit || 2
+    }
+    Department.aggregate([
+        { $match: {} },
+        {
+            $facet: {
+                data: [
+                    //   { $sort: sort },
+                    { $skip: pageOptions.page },
+                    { $limit: pageOptions.limit }
+                ],
+                info: [{ $group: { _id: null, count: { $sum: 1 } } }]
+            }
+        }
+    ]).exec()
+        .then(docs => {
+            let data = {
+                columns: [
+                    {
+                        title: 'DepartmanAdı',
+                        dataIndex: 'name',
+                        width: 150
+                    },
+                    {
+                        title: 'Kayıt Tarihi',
+                        dataIndex: 'rDate'
+                    }
+                ],
+                data: docs[0].data.map(x => {
+                    return {
+                        id: x._id,
+                        name: x.name,
+                        rDate: moment(x.rDate).format("YYYY-MM-DD HH:mm:ss")
+                    }
+                }),
+                count: docs[0].info[0].count
+            };
+            res.status(200).json(data);
+        })
+        .catch(err => {
+            res.status(500).json({
+                messageType: -1,
+                message: "Bir hata oluştu.",
+                error: err
+            });
+        });
+}]
