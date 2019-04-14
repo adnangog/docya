@@ -31,7 +31,7 @@ module.exports.userAdd = [
                 name: req.body.name,
                 email: req.body.email,
                 rDate: req.body.rDate,
-                status: req.body.status,
+                status: 1,
                 groups: req.body.groups,
                 department: req.body.department,
                 username: req.body.email,
@@ -627,23 +627,6 @@ module.exports.userGet_ = [
               isEmail: true
             },
             {
-              name: "password",
-              label: "Şifre",
-              value: "",
-              placeholder: "Şifrenizi giriniz",
-              type: "password",
-              isPassword: true
-            },
-            {
-              name: "passwordre",
-              label: "Şifre (Tekrar)",
-              value: "",
-              placeholder: "Şifrenizi tekrar giriniz",
-              type: "password",
-              isPassword: true,
-              isEqual: "password"
-            },
-            {
               name: "title",
               label: "Ünvan",
               value: doc.title,
@@ -671,15 +654,16 @@ module.exports.userGet_ = [
               value: "web",
               hidden: true
             }
-          
+
           ]
           res.status(200).json({
-            data:doc,
-            form:form
+            data: doc,
+            form: form,
+            action: { label: "Güncelle", title: "Kullanıcı Düzenle" }
           });
         } else {
           res.status(404).json({
-            message: "Bu id'ye ait bir kayit bulunamadi.",
+            message: "Bu id'ye ait bir kayıt bulunamadi.",
             messageType: 0
           });
         }
@@ -691,5 +675,75 @@ module.exports.userGet_ = [
           error: err
         });
       });
+  }
+];
+
+module.exports.userForm = [
+  checkAuth,
+  (req, res, next) => {
+
+    let form = [
+      {
+        name: "name",
+        label: "Adı Soyadı",
+        value: "",
+        placeholder: "Ad soyad giriniz",
+        type: "text",
+        isRequired: true
+      },
+      {
+        name: "email",
+        label: "E-mail",
+        value: "",
+        placeholder: "Email giriniz",
+        type: "email",
+        isRequired: true,
+        isEmail: true
+      },
+      {
+        name: "password",
+        label: "Şifre",
+        value: "",
+        placeholder: "Şifrenizi giriniz",
+        type: "password",
+        isPassword: true
+      },
+      {
+        name: "passwordre",
+        label: "Şifre (Tekrar)",
+        value: "",
+        placeholder: "Şifrenizi tekrar giriniz",
+        type: "password",
+        isPassword: true,
+        isEqual: "password"
+      },
+      {
+        name: "title",
+        label: "Ünvan",
+        value: "",
+        placeholder: "Ünvan giriniz",
+        type: "text"
+      },
+      {
+        name: "department",
+        label: "Departman",
+        value: null,
+        placeholder: "Departman Seçiniz",
+        type: "select",
+        mode: "multiple",
+        getprops: "departments"
+      },
+      {
+        name: "source",
+        type: "text",
+        value: "web",
+        hidden: true
+      }
+
+    ]
+    res.status(200).json({
+      form: form,
+      action: { label: "Kaydet", title: "Kullanıcı Ekle" }
+    });
   }
 ];
