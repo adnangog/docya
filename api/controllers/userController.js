@@ -627,23 +627,6 @@ module.exports.userGet_ = [
               isEmail: true
             },
             {
-              name: "password",
-              label: "Şifre",
-              value: "",
-              placeholder: "Şifrenizi giriniz",
-              type: "password",
-              isPassword: true
-            },
-            {
-              name: "passwordre",
-              label: "Şifre (Tekrar)",
-              value: "",
-              placeholder: "Şifrenizi tekrar giriniz",
-              type: "password",
-              isPassword: true,
-              isEqual: "password"
-            },
-            {
               name: "title",
               label: "Ünvan",
               value: doc.title,
@@ -664,18 +647,19 @@ module.exports.userGet_ = [
                 { name: "IT", id: "3" },
                 { name: "Denetleme", id: "4" }
               ]
-            },
-            {
-              name: "source",
-              type: "text",
-              value: "web",
-              hidden: true
             }
           
           ]
+
+          let action = {
+            type:"edit",
+            label:"Güncelle",
+            method:"/v2/update/"
+          }
           res.status(200).json({
             data:doc,
-            form:form
+            form:form,
+            action:action
           });
         } else {
           res.status(404).json({
