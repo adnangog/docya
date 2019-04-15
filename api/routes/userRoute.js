@@ -14,6 +14,7 @@ router.post('/authset/:authsetId', controller.userByAuthSetId);
 
 router.post('/v2/', controller.userList_);
 router.post('/v2/login', controller.userLogin_);
+router.get('/v2/form', controller.userForm);
 router.get('/v2/:userId', controller.userGet_);
 router.patch('/v2/:userId', controller.userUpdate);
 router.post('/v2/add', controller.userAdd);
